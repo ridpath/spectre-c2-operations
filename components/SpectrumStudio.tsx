@@ -17,7 +17,11 @@ import {
   Video,
   AlertTriangle,
   Radio,
-  Unplug
+  Unplug,
+  Flame,
+  HardDrive,
+  Dna,
+  Binary
 } from 'lucide-react';
 
 type ProfileType = 'Office365' | 'AWS' | 'GitHub' | 'Slack' | 'GoogleWorkspace' | 'Zoom' | 'PhantomVector';
@@ -27,31 +31,25 @@ const SpectrumStudio: React.FC = () => {
   const [isLive, setIsLive] = useState(true);
   const [jitterFactor, setJitterFactor] = useState(45);
   const [entropy, setEntropy] = useState(12);
-  const [activeTab, setActiveTab] = useState<'shaping' | 'fragmentation' | 'temporal'>('shaping');
+  const [activeTab, setActiveTab] = useState<'shaping' | 'obfuscation' | 'recording'>('shaping');
+  const [isRecordingIQ, setIsRecordingIQ] = useState(false);
+  const [isObfuscating, setIsObfuscating] = useState(false);
   const [spectrumData, setSpectrumData] = useState<number[]>([]);
+  const [streamingMode, setStreamingMode] = useState<'Standard' | 'VITA-49'>('Standard');
   const waterfallRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
-  // Tactical Bridge WebSocket Connection for Spectrum Data
   useEffect(() => {
     if (!isLive) return;
-
     const ws = new WebSocket(`ws://localhost:8000/ws/spectrum`);
     socketRef.current = ws;
-
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.data) {
-        setSpectrumData(data.data);
-      }
+      if (data.data) setSpectrumData(data.data);
     };
-
-    return () => {
-      ws.close();
-    };
+    return () => ws.close();
   }, [isLive]);
 
-  // Waterfall simulation using live data
   useEffect(() => {
     if (!waterfallRef.current) return;
     const canvas = waterfallRef.current;
@@ -67,16 +65,17 @@ const SpectrumStudio: React.FC = () => {
 
       for (let x = 0; x < canvas.width; x++) {
         const binIndex = Math.floor((x / canvas.width) * currentData.length);
-        const intensity = (currentData[binIndex] + 120) * 2; // Normalize dBm to 0-255 scale roughly
+        const intensity = (currentData[binIndex] + 120) * 2;
         
         ctx.fillStyle = intensity > 100 ? '#3b82f6' : (intensity > 60 ? '#1d4ed8' : '#020617');
+        if (isObfuscating && Math.random() > 0.95) ctx.fillStyle = '#ef4444'; // Chaff simulation
         ctx.fillRect(x, 0, 1, 1);
       }
       animationId = requestAnimationFrame(render);
     };
     render();
     return () => cancelAnimationFrame(animationId);
-  }, [spectrumData]);
+  }, [spectrumData, isObfuscating]);
 
   const mimicryDetails: Record<ProfileType, { icon: any, color: string, desc: string, risk: string, protocol: string }> = {
     'Office365': { icon: <Cloud size={32} />, color: 'blue', desc: 'Mimics Outlook/SharePoint web-socket traffic.', risk: 'Low', protocol: 'HTTPS/2' },
@@ -93,16 +92,18 @@ const SpectrumStudio: React.FC = () => {
       <header className="flex justify-between items-start">
         <div className="flex flex-col gap-1">
           <h2 className="text-2xl font-black text-blue-400 uppercase tracking-tighter flex items-center gap-3">
-            <Wifi size={24} /> Spectrum Mimicry & Shaping
+            <Wifi size={24} /> Spectrum Studio v4.6
           </h2>
-          <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1">Industrial-Grade Behavioral Signal Orchestration</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1">Industrial-Grade RF Orchestration & Mimicry</p>
         </div>
         
         <div className="flex items-center gap-4 bg-slate-900/60 p-2 rounded-2xl border border-white/5 shadow-2xl">
-           <div className="flex flex-col items-end px-4 border-r border-white/10">
-              <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Spectral Integrity</span>
-              <span className={`text-xs font-mono font-bold ${entropy > 18 ? 'text-yellow-500' : 'text-emerald-500'}`}>{entropy.toFixed(2)}% Deviance</span>
-           </div>
+           <button 
+            onClick={() => setStreamingMode(streamingMode === 'Standard' ? 'VITA-49' : 'Standard')}
+            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${streamingMode === 'VITA-49' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-500'}`}
+           >
+             Mode: {streamingMode}
+           </button>
            <button 
             onClick={() => setIsLive(!isLive)}
             className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-lg ${isLive ? 'bg-emerald-600 text-white shadow-emerald-900/20' : 'bg-slate-800 text-slate-500'}`}
@@ -140,35 +141,71 @@ const SpectrumStudio: React.FC = () => {
                 className={`flex-1 py-2 text-[9px] font-black uppercase rounded-xl transition-all ${activeTab === 'shaping' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
               >Jitter</button>
               <button 
-                onClick={() => setActiveTab('fragmentation')}
-                className={`flex-1 py-2 text-[9px] font-black uppercase rounded-xl transition-all ${activeTab === 'fragmentation' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
-              >Vector</button>
+                onClick={() => setActiveTab('obfuscation')}
+                className={`flex-1 py-2 text-[9px] font-black uppercase rounded-xl transition-all ${activeTab === 'obfuscation' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+              >Chaff</button>
               <button 
-                onClick={() => setActiveTab('temporal')}
-                className={`flex-1 py-2 text-[9px] font-black uppercase rounded-xl transition-all ${activeTab === 'temporal' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
-              >Temporal</button>
+                onClick={() => setActiveTab('recording')}
+                className={`flex-1 py-2 text-[9px] font-black uppercase rounded-xl transition-all ${activeTab === 'recording' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+              >IQ Vault</button>
             </div>
 
-            <div className="flex-1 space-y-10">
+            <div className="flex-1 space-y-6">
               {activeTab === 'shaping' && (
-                <div className="space-y-8 animate-in slide-in-from-left-4 duration-300">
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Signal Jitter</label>
-                      <span className="text-xs font-mono text-blue-400">{jitterFactor}% Burst</span>
-                    </div>
-                    <input 
-                      type="range" min="5" max="95" value={jitterFactor} 
-                      onChange={e => setJitterFactor(parseInt(e.target.value))}
-                      className="w-full h-1 bg-slate-800 rounded-full appearance-none accent-blue-500 shadow-inner"
-                    />
+                <div className="space-y-4 animate-in slide-in-from-left-4 duration-300">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Burst Jitter</label>
+                    <span className="text-xs font-mono text-blue-400">{jitterFactor}%</span>
                   </div>
+                  <input 
+                    type="range" min="5" max="95" value={jitterFactor} 
+                    onChange={e => setJitterFactor(parseInt(e.target.value))}
+                    className="w-full h-1 bg-slate-800 rounded-full appearance-none accent-blue-500"
+                  />
+                </div>
+              )}
+
+              {activeTab === 'obfuscation' && (
+                <div className="space-y-6 animate-in slide-in-from-left-4 duration-300">
+                  <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-2xl">
+                    <h5 className="text-[10px] font-black text-red-400 uppercase mb-2 flex items-center gap-2">
+                       <Flame size={12} /> Chaff Generation
+                    </h5>
+                    <p className="text-[9px] text-slate-500 leading-relaxed italic">
+                      Injects synthetic spectral noise to mask the true C2 vector footprint.
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => setIsObfuscating(!isObfuscating)}
+                    className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase flex items-center justify-center gap-2 transition-all ${isObfuscating ? 'bg-red-600 text-white shadow-red-900/40' : 'bg-slate-800 text-slate-400'}`}
+                  >
+                    <Zap size={14} /> {isObfuscating ? 'Deactivate Chaff' : 'Ignite Obfuscation'}
+                  </button>
+                </div>
+              )}
+
+              {activeTab === 'recording' && (
+                <div className="space-y-6 animate-in slide-in-from-left-4 duration-300">
+                  <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl">
+                    <h5 className="text-[10px] font-black text-emerald-400 uppercase mb-2 flex items-center gap-2">
+                       <HardDrive size={12} /> High-Speed IQ Vault
+                    </h5>
+                    <p className="text-[9px] text-slate-500 leading-relaxed italic">
+                      Record raw IQ samples from the current center frequency for offline replay analysis.
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => setIsRecordingIQ(!isRecordingIQ)}
+                    className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase flex items-center justify-center gap-2 transition-all ${isRecordingIQ ? 'bg-emerald-600 text-white animate-pulse' : 'bg-slate-800 text-slate-400'}`}
+                  >
+                    <Activity size={14} /> {isRecordingIQ ? 'Recording IQ Stream...' : 'Start IQ Capture'}
+                  </button>
                 </div>
               )}
             </div>
 
-            <button className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center gap-3 shadow-2xl shadow-blue-900/40 transition-all active:scale-[0.98]">
-              <Unplug size={18} /> Apply Signal Profile
+            <button className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.25em] flex items-center justify-center gap-3 shadow-2xl shadow-blue-900/40">
+              <Unplug size={18} /> Apply Spectral Profile
             </button>
           </section>
         </div>
@@ -176,25 +213,16 @@ const SpectrumStudio: React.FC = () => {
         <div className="lg:col-span-8 flex flex-col gap-6 overflow-hidden">
           <section className="bg-[#010309] border border-white/5 rounded-[3.5rem] p-12 flex flex-col relative overflow-hidden flex-1 shadow-2xl">
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
-            
             <div className="flex justify-between items-start mb-12 z-10">
               <div>
                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-4">
-                  <Activity size={24} className="text-blue-500" /> Strategic Spectral Response
+                  <Dna size={24} className="text-blue-500" /> Response Distribution
                 </h3>
-                <p className="text-[10px] text-slate-500 mt-2 uppercase font-black tracking-[0.2em]">{activeProfile} Baseline vs. Active Protocol Vector</p>
+                <p className="text-[10px] text-slate-500 mt-2 uppercase font-black tracking-[0.2em]">{activeProfile} Baseline Map</p>
               </div>
             </div>
-
             <div className="flex-1 flex gap-1 items-end relative overflow-hidden group/analyzer pb-10">
               <canvas ref={waterfallRef} className="absolute inset-0 w-full h-full opacity-60" width={800} height={400} />
-              
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0b1120]/90 backdrop-blur-2xl border border-white/10 p-10 rounded-[3rem] flex flex-col items-center gap-6 z-20 shadow-2xl scale-110">
-                <div className="relative w-40 h-40 flex items-center justify-center">
-                   {/* Center gauge logic ... */}
-                   <span className="text-3xl font-black text-white">{isLive ? "BRIDGE" : "SIM"}</span>
-                </div>
-              </div>
             </div>
           </section>
         </div>

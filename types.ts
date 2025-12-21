@@ -10,9 +10,33 @@ export type ModuleCategory = 'Initial Access' | 'Recon' | 'Exploitation' | 'Post
 
 // --- CELESTIAL BREACH PROTOCOL TYPES ---
 
-/**
- * CCSDSPacket: Represents a standard Consultative Committee for Space Data Systems packet.
- */
+export type DspEngine = 'CPU' | 'FPGA' | 'RFNoC';
+export type ModulationType = 'BPSK' | 'QPSK' | 'GFSK' | 'OOK' | '8PSK' | 'Unknown';
+
+export interface DPIFrame {
+  timestamp: Date;
+  scid: number;
+  vcid: number;
+  frameCount: number;
+  status: 'authenticated' | 'anomaly' | 'unencrypted';
+  parsedData: Record<string, any>;
+  modulationAI?: ModulationType;
+}
+
+export interface DopplerData {
+  shift: number;
+  rate: number;
+  drift: number;
+}
+
+export interface AntennaState {
+  azimuth: number;
+  elevation: number;
+  status: 'tracking' | 'homing' | 'parked' | 'error';
+  rotctld_status: 'connected' | 'offline';
+  servo_lock: boolean;
+}
+
 export interface CCSDSPacket {
   version: number;
   type: 'TC' | 'TM';
@@ -21,25 +45,19 @@ export interface CCSDSPacket {
   sequenceFlags: number;
   sequenceCount: number;
   dataLength: number;
-  payload: string; // Hex-encoded string
-  crc: string; // Hex-encoded 16-bit CRC
+  payload: string;
+  crc: string;
 }
 
-/**
- * SatelliteSubsystem: Hardware monitoring for LEO/GEO assets.
- */
 export interface SatelliteSubsystem {
   id: string;
   name: string;
   status: 'nominal' | 'degraded' | 'critical' | 'fuzzed' | 'offline';
-  load: number; // 0-100 percentage
+  load: number;
   telemetry: Record<string, string | number>;
   isSpoofed?: boolean;
 }
 
-/**
- * RFProfile: Spectrum footprint data.
- */
 export interface RFProfile {
   id: string;
   name: string; 
@@ -102,9 +120,6 @@ export interface OrbitalCoordinates {
   velocity: number;
 }
 
-/**
- * OrbitalAsset: Primary data model for target satellites.
- */
 export interface OrbitalAsset {
   id: string;
   designation: string;
@@ -120,6 +135,8 @@ export interface OrbitalAsset {
   tle: TLEData;
   subsystems: SatelliteSubsystem[];
   rfProfile?: RFProfile;
+  doppler?: DopplerData;
+  dspMode?: DspEngine;
 }
 
 export interface AutonomousRule {
@@ -242,7 +259,7 @@ export interface TerminalLine {
 
 export interface LootItem {
   id: string;
-  type: 'hash' | 'credential' | 'screenshot' | 'file';
+  type: 'hash' | 'credential' | 'screenshot' | 'file' | 'iq';
   targetId: string;
   content: string;
   metadata: Record<string, any>;
