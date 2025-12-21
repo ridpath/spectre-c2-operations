@@ -1,7 +1,5 @@
 {
   "name": "Spectre C2 Operations Center",
   "description": "A professional-grade C2 orchestration platform for advanced security research, featuring multi-stage pivoting, payload synthesis, and automated vulnerability validation.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
+  "requestFramePermissions": []
 }

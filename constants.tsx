@@ -5,7 +5,8 @@ export const RF_REGISTRY: RFProfile[] = [
   { id: 'rf-noaa', name: 'NOAA-15 HRPT', frequency: '137.620 MHz', bandwidth: '34 kHz', modulation: 'QPSK', noiseFloor: -110, iqSignature: 'noaa_hrpt_iq' },
   { id: 'rf-iridium', name: 'Iridium-Next L-Band', frequency: '1.616 GHz', bandwidth: '1.25 MHz', modulation: 'DE-QPSK', noiseFloor: -125, iqSignature: 'iridium_burst_iq' },
   { id: 'rf-starlink', name: 'Starlink Ku-Down', frequency: '11.7 GHz', bandwidth: '250 MHz', modulation: '64QAM', noiseFloor: -95, iqSignature: 'sl_phased_array_iq' },
-  { id: 'rf-deepspace', name: 'DSN Goldstone X-Band', frequency: '8.40 GHz', bandwidth: '2 MHz', modulation: 'PCM/PSK/PM', noiseFloor: -150, iqSignature: 'dsn_high_gain' }
+  { id: 'rf-gs-nasa', name: 'NASA Deep Space Mimic', frequency: '2.2 GHz', bandwidth: '10 MHz', modulation: 'BPSK', noiseFloor: -115, iqSignature: 'nasa_uplink_sig', isGroundStationMimic: true },
+  { id: 'rf-gs-esa', name: 'ESA Estrack Mimic', frequency: '8.4 GHz', bandwidth: '5 MHz', modulation: 'PCM/PSK/PM', noiseFloor: -140, iqSignature: 'esa_ka_band_sig', isGroundStationMimic: true }
 ];
 
 export const ORBITAL_ASSETS: OrbitalAsset[] = [
@@ -100,6 +101,19 @@ export const OFFENSIVE_REGISTRY: OffensiveModule[] = [
     author: 'Spectre-Team',
     commands: [
       { trigger: 'relay-init --chain [43105,43569]', description: 'Initiate multi-hop orbital relay' }
+    ]
+  },
+  {
+    id: 'orbital-gs-mimic',
+    name: 'GS Signature Mimicry',
+    category: 'Orbital SIGINT',
+    description: 'Simulates the RF footprint of authorized NASA or ESA ground stations.',
+    opsecRisk: 'Low',
+    noiseLevel: 1,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'gs-mimic --profile NASA_CANBERRA', description: 'Enable Ground Station fingerprint mimicry' }
     ]
   }
 ];

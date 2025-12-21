@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ConnectionSidebar from './components/ConnectionSidebar';
 import Terminal, { TerminalHandle } from './components/Terminal';
 import NeuralEngagementMap from './components/NeuralEngagementMap';
@@ -38,7 +38,9 @@ import {
   Network,
   Briefcase,
   Activity,
-  Satellite
+  Satellite,
+  Link as LinkIcon,
+  Unplug
 } from 'lucide-react';
 
 type ViewID = 'topology' | 'shell' | 'apt' | 'vuln' | 'pivot' | 'capabilities' | 'factory' | 'loot' | 'egress' | 'spectrum' | 'autonomous' | 'sigint' | 'satellite' | 'team';
@@ -46,7 +48,24 @@ type ViewID = 'topology' | 'shell' | 'apt' | 'vuln' | 'pivot' | 'capabilities' |
 const App: React.FC = () => {
   const c2 = useC2();
   const [activeView, setActiveView] = useState<ViewID>('topology');
+  const [bridgeConnected, setBridgeConnected] = useState<boolean | null>(null);
   const terminalRef = useRef<TerminalHandle>(null);
+
+  // Tactical Bridge Heartbeat Monitor
+  useEffect(() => {
+    const checkBridge = async () => {
+      try {
+        const resp = await fetch('http://localhost:8000/health', { method: 'GET' });
+        setBridgeConnected(resp.ok);
+      } catch (e) {
+        setBridgeConnected(false);
+      }
+    };
+    
+    checkBridge();
+    const interval = setInterval(checkBridge, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (c2.securityConfig.isAuthEnabled && !c2.currentOperator) {
     return <LoginScreen onLogin={c2.login} />;
@@ -146,6 +165,21 @@ const App: React.FC = () => {
           </nav>
 
           <div className="flex items-center gap-6 shrink-0">
+            {/* Tactical Bridge HUD Indicator */}
+            <div className="flex flex-col items-end">
+               <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Tactical Bridge</span>
+               <div className={`flex items-center gap-2 px-3 py-1 rounded-lg border transition-all ${
+                 bridgeConnected === true ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' :
+                 bridgeConnected === false ? 'bg-red-500/10 border-red-500/30 text-red-500 animate-pulse' :
+                 'bg-slate-800 border-white/5 text-slate-600'
+               }`}>
+                  {bridgeConnected === true ? <LinkIcon size={12} /> : <Unplug size={12} />}
+                  <span className="text-[10px] font-black uppercase tracking-widest">
+                    {bridgeConnected === true ? 'ONLINE' : bridgeConnected === false ? 'OFFLINE' : 'SYNCING...'}
+                  </span>
+               </div>
+            </div>
+
             <div className="hidden xl:flex flex-col items-end">
                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">System Entropy</span>
                <div className="flex items-center gap-3">

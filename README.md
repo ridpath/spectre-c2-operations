@@ -1,153 +1,83 @@
-<!--
-Spectre C2 sovereign-grade C2 and orbital SIGINT post-exploitation framework,
-advanced WinRM and protocol mimicry engine with aerospace threat simulation,
-Astro-Sec fuzzing, CCSDS space packet forging and telemetry deception,
-DVB-S2 IQ overlay, RF fingerprint spoofing, orbital signal relay and AOS planning,
-heapless memory execution, behavioral signal shaping for XDR/EDR evasion,
-legal satellite hacking CTF integration and adversary emulation in aerospace environments.
--->
 
 # Spectre C2 Operations Center
 
-**Operational Designation:** Sovereign-Grade Engagement & Orbital SIGINT Framework  
-**Version:** 4.5.0-ORBITAL  
-**Research Tier:** Aerospace-Grade Post-Exploitation and Signal Emulation  
+**Operational Designation:** Sovereign-Grade Engagement and Orbital SIGINT Framework  
+**Version:** 4.5.5-LAB-PRODUCTION  
+**Research Tier:** Aerospace-Grade Post-Exploitation and Signal Deception  
 **Lead Architect:** Principal Security Research Division  
 
 ![Status: Stable](https://img.shields.io/badge/status-stable-brightgreen)
 ![Domain: Astro-Sec](https://img.shields.io/badge/domain-astro--sec-blue)
-![Protocols: WinRM, CCSDS, DVB-S2](https://img.shields.io/badge/protocols-WinRM%20%7C%20CCSDS%20%7C%20DVB--S2-purple)
-![Execution: Heapless](https://img.shields.io/badge/execution-heapless--payloads-orange)
+![Protocols: WinRM | CCSDS | DVB--S2](https://img.shields.io/badge/protocols-WinRM%20%7C%20CCSDS%20%7C%20DVB--S2-purple)
+![Architecture: Tactical Bridge](https://img.shields.io/badge/architecture-tactical--bridge-orange)
 ![Signal: Spectral Mimicry](https://img.shields.io/badge/signal-spectral--mimicry-lightgrey)
 ![License: Research Only](https://img.shields.io/badge/license-research--only-red)
 
 ---
 
-Spectre C2 is an orbital-grade post-exploitation orchestration platform engineered for cyber-physical testing in aerospace environments, advanced WinRM operations, and signal-layer deception research. It includes specialized modules for protocol fuzzing, satellite subsystem targeting, and multi-hop C2 signal relay across simulated or real orbital infrastructure.
+Spectre C2 is an orbital-grade post-exploitation orchestration platform engineered for cyber-physical testing in aerospace environments, advanced WinRM operations, and signal-layer deception research. This version features live Tactical Bridge telemetry and hardware-abstracted RF injection.
 
 ---
 
-## Features
+## Core Operational Modules
 
-### Core Command and Control
+### 1. Nexus Topology and Real-Time Telemetry
+Centralized visualization of the engagement mesh. This module utilizes WebSockets to stream live entropy data and beacon states from the Tactical Bridge. It provides a direct interface for node tasking and WinRM session management.
 
-- **WinRM Beacon Engine**  
-  Establishes NTLM or Kerberos-authenticated reverse beacons over hardened networks.
+### 2. Celestial Breach (Orbital SIGINT)
+Comprehensive satellite engagement suite with real-time propagation:
+- **Orbital Tracking:** Live TLE-driven position updates via WebSocket stream (1Hz).
+- **CCSDS Forge:** Packet assembly supporting CRC-16-CCITT integrity checks and bit-level manipulation.
+- **Hardware Injection:** Direct uplink hooks for HackRF and USRP X410 devices using OOK modulation.
+- **Subsystem Telemetry:** Live monitoring of EPS, AOCS, and Thermal hardware states.
 
-- **Heapless Execution Framework**  
-  Agents operate entirely in memory using non-traditional memory segments to evade standard heap-scanning heuristics.
+### 3. Artifact Foundry (QuantumForge)
+High-stealth payload synthesis engine. Architects heapless stagers with modular evasion parameters including Indirect Syscalls, Sleep Masking, and ETW/AMSI patching.
 
-- **Autonomous Overlord Mode**  
-  Enables fallback logic and autonomous operation when command signal is severed.
-
----
-
-### Signal Emulation and Spectral Control
-
-- **Spectral Mimicry Engine**  
-  Wraps C2 traffic in protocol-accurate RF envelopes, imitating enterprise or orbital traffic (e.g., Office365, Zoom media, Starlink telemetry).
-
-- **Temporal Signal Shaping**  
-  Beacon intervals randomized to mimic enterprise software telemetry.
-
-- **Quantum Signal Relay (Bounce Mode)**  
-  Simulates orbital multi-hop routing to obfuscate the true origin of C2 signals and evade ground-based triangulation.
+### 4. Spectrum Studio (Signal Mimicry)
+Real-time RF waterfall display and traffic shaping engine. Visualizes live SDR input or synthetic signal profiles to facilitate behavioral signal orchestration.
 
 ---
 
-### Astro-Sec Expansion (Satellite Offensive Simulation)
+## Tactical Bridge (STB) Integration
 
-- **CCSDS Forge & Packet Assembler**  
-  Bit-level packet crafting for space protocol research. Features:
-  - APID (Application Process Identifier) mapping
-  - Secondary header toggles
-  - CRC-16-CCITT checksum generator
-  - Automated **Bit-Level Protocol Fuzzer** for edge-case vulnerability discovery
+The Spectre Tactical Bridge (STB) is the mandatory backend translation layer required for live operations. It manages hardware interfaces and executes remote tasking.
 
-- **Subsystem Tactical HUD**  
-  Interactive targeting of satellite hardware control systems:
-  - **EPS (Power System):** Simulate battery drain scenarios
-  - **AOCS (Attitude Control):** Trigger orientation fuzzing
-  - **Payload Systems:** Deny or modify tasking logic
+### Implementation Stack
+- **API Framework:** FastAPI with Uvicorn (Asynchronous).
+- **WinRM Engine:** pywinrm for remote shell execution.
+- **Orbital Propagation:** skyfield (TLE-based SGP4).
+- **DSP Engine:** UHD (USRP) and HackRF Python bindings for RF transmission.
+- **Signal Processing:** Optional GNU Radio integration for advanced DSP flowgraphs.
 
-- **DVB-S2 Waterfall & Spectral Overlay**  
-  Canvas-based RF visualizer that:
-  - Demodulates simulated bitstreams
-  - Overlays C2 traffic on IQ streams of legitimate operators
-  - Includes profiles for NOAA-15, Starlink Ku-Band, and ground uplinks
-
-- **AOS (Acquisition of Signal) Planner**  
-  TLE (Two-Line Element) driven scheduling engine:
-  - Parses orbital data to determine satellite flyover times
-  - Enables "dead-drop" payloads that trigger only when the target satellite is in range
-
-- **Relay & Signal Bounce Simulation**  
-  Models traffic bouncing across multiple satellites to simulate complex orbital routing patterns.
-
-- **Housekeeping Telemetry Spoofing**  
-  Injects synthetic telemetry into downlinks to mask malicious actions:
-  - CPU load falsification
-  - Battery drain suppression
-  - Thermal signature masking
-
-- **Ground Station Signature Mimicry**  
-  Extends RF fingerprint overlays to resemble uplinks from authorized terrestrial stations (e.g., NASA, ESA).
-
-- **Full Feature Parity Across Modules**  
-  All above systems integrate with:
-  - Spectral Waterfall
-  - Subsystem HUD
-  - AOS Planning Engine
-  - Signal Relay Map
+### Deployment Sequence
+1. **Bridge Initialization:** Execute the Python backend (`python backend.py`). Ensure all hardware (USRP/HackRF) is connected if utilizing live RF modes.
+2. **Signal Synchronization:** Verify the "BRIDGE" status indicator in the UI header. An emerald state indicates a successful heartbeat.
+3. **Session Establishment:** Define target parameters (Host, Credentials, Auth Method) in the Connection Sidebar to establish a persistent WinRM beacon.
+4. **Tasking Dispatch:** Utilize the WinRM Shell or Offensive Registry to transmit commands through the bridge to target assets.
 
 ---
 
-## Installation & Deployment
+## Hardware and SDR Configuration
 
-### Prerequisites
+The platform supports multiple RF operational modes via the `SDR_TYPE` environment variable on the bridge:
+- **sim:** Synthetic signal and telemetry generation (Default).
+- **rtl:** Real-time receive-only via RTL-SDR.
+- **hackrf:** Half-duplex transceiver operations for packet injection.
+- **usrp:** High-performance RX/TX via UHD (Optimized for USRP X410).
+- **gnuradio_usrp:** Advanced DSP via GNU Radio flowgraphs.
 
-- Node.js v20+
-- SOCKS5 proxy or Tor routing for outbound C2 paths
-- Spectre Mission Keycard (operator access token)
+---
 
-### Setup Instructions
+## Ethical Mandate and Legal Disclaimer
 
-```bash
-git clone https://github.com/ridpath/
-cd awinrm
-npm install
-npm run dev
-```
+Spectre is strictly intended for authorized security research, red-teaming, and aerospace security analysis within controlled laboratory environments.
 
-## Command Protocol (Usage)
+1. **Authorization:** Deployment without explicit, written consent is a violation of law.
+2. **Liability:** The development division assumes no liability for misuse.
+3. **Compliance:** Operators must ensure activities comply with local RF transmission regulations.
 
-Operations follow the **Spectre Engagement Lifecycle**:
-
-1.  **Nexus Initialization**: Verify global signal health and system entropy levels in the 'Nexus' view.
-2.  **Access Acquisition**: Establish reverse-beacons via 'WinRM Shell' using NTLM/Kerberos handshakes.
-3.  **Orbital Sync**: Navigate to the 'Orbital' module to select a satellite asset for trajectory tracking. Enable 'Auto-Track' for synchronized engagement windows.
-4.  **Artifact Synthesis**: Use the 'Foundry' to generate 'Heapless' stagers. Apply 'PhantomVector' mimicry to wrap traffic in Office365 or Zoom-media envelopes.
-5.  **Strategic Validation**: Execute the 'Vuln' suite to assess host susceptibility to modern protocol fatigue (SMBv1, Netlogon, PrintSpooler).
-6.  **Intel Exfiltration**: Verify captured credentials and verified loot within the 'Tactical Vault'.
-
-## Component architectures
-
-| Tier | Module | Description |
-| :--- | :--- | :--- |
-| **Tier 1** | **Nexus & Topology** | Real-time neural map of the engagement mesh, tracking signal entropy. |
-| **Tier 2** | **Orbital SIGINT** | 3D projection of satellite assets with CCSDS protocol hijacking simulation. |
-| **Tier 3** | **QuantumForge Foundry** | Sovereign-grade payload synthesis for x64/x86 architectures. |
-| **Tier 4** | **Strategic Validation** | High-fidelity vulnerability assessment modules (CVE-aligned). |
-| **Tier 5** | **Spectrum Studio** | Malleable C2 profiling for advanced protocol mimicry. |
-
-## Ethical Mandate & Legal Disclaimer
-
-Spectre is strictly intended for **authorized security research, red-teaming, and aerospace security analysis** within controlled laboratory environments.
-
-1.  **Authorization**: Deployment of Spectre artifacts without explicit, written consent is a violation of international cyber law.
-2.  **Liability**: The development team assumes no liability for misuse, unauthorized access, or data loss resulting from the use of this framework.
-3.  **Compliance**: Operators must ensure all activities conducted via the Spectre platform comply with local and international regulations.
-
-Unauthorized use of this technology can lead to severe criminal penalties. Operation within ethical and legal boundaries is mandatory.
+Unauthorized use of this technology can lead to severe criminal penalties.
 
 ## License
+Project Spectre is licensed for authorized laboratory use only.

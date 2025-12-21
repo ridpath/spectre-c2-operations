@@ -10,6 +10,9 @@ export type ModuleCategory = 'Initial Access' | 'Recon' | 'Exploitation' | 'Post
 
 // --- CELESTIAL BREACH PROTOCOL TYPES ---
 
+/**
+ * CCSDSPacket: Represents a standard Consultative Committee for Space Data Systems packet.
+ */
 export interface CCSDSPacket {
   version: number;
   type: 'TC' | 'TM';
@@ -18,19 +21,25 @@ export interface CCSDSPacket {
   sequenceFlags: number;
   sequenceCount: number;
   dataLength: number;
-  payload: string; 
-  crc: string;
+  payload: string; // Hex-encoded string
+  crc: string; // Hex-encoded 16-bit CRC
 }
 
+/**
+ * SatelliteSubsystem: Hardware monitoring for LEO/GEO assets.
+ */
 export interface SatelliteSubsystem {
   id: string;
   name: string;
   status: 'nominal' | 'degraded' | 'critical' | 'fuzzed' | 'offline';
-  load: number; 
+  load: number; // 0-100 percentage
   telemetry: Record<string, string | number>;
   isSpoofed?: boolean;
 }
 
+/**
+ * RFProfile: Spectrum footprint data.
+ */
 export interface RFProfile {
   id: string;
   name: string; 
@@ -39,6 +48,7 @@ export interface RFProfile {
   modulation: string;
   noiseFloor: number;
   iqSignature: string; 
+  isGroundStationMimic?: boolean;
 }
 
 export interface TLEData {
@@ -92,6 +102,9 @@ export interface OrbitalCoordinates {
   velocity: number;
 }
 
+/**
+ * OrbitalAsset: Primary data model for target satellites.
+ */
 export interface OrbitalAsset {
   id: string;
   designation: string;
