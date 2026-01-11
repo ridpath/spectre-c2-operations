@@ -94,6 +94,7 @@ const App: React.FC = () => {
   const [antenna, setAntenna] = useState({ azimuth: 180, elevation: 45, rotctld_status: 'connected' as const, servo_lock: true, status: 'tracking' as const });
   const [orbitalAssets, setOrbitalAssets] = useState<typeof ORBITAL_ASSETS>(ORBITAL_ASSETS);
   const [isDemoMode, setIsDemoMode] = useState(demoModeService.getDemoMode());
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const unsubscribe = demoModeService.subscribe((isDemo) => {
@@ -156,7 +157,7 @@ const App: React.FC = () => {
     const refreshInterval = setInterval(fetchSatellitesAndAutoPopulate, 3600000);
     
     return () => clearInterval(refreshInterval);
-  }, [c2.currentOperator, isDemoMode]);
+  }, [c2.currentOperator, isDemoMode, isAuthenticated]);
 
   useEffect(() => {
     const checkBridge = async () => {
@@ -173,8 +174,13 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleLogin = (username: string) => {
+    c2.login(username);
+    setIsAuthenticated(true);
+  };
+
   if (c2.securityConfig.isAuthEnabled && !c2.currentOperator) {
-    return <LoginScreen onLogin={c2.login} />;
+    return <LoginScreen onLogin={handleLogin} />;
   }
 
   const activeConnection = c2.connections.find(c => c.id === c2.activeConnectionId) || null;
