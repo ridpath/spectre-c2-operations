@@ -94,7 +94,6 @@ const App: React.FC = () => {
   const [antenna, setAntenna] = useState({ azimuth: 180, elevation: 45, rotctld_status: 'connected' as const, servo_lock: true, status: 'tracking' as const });
   const [orbitalAssets, setOrbitalAssets] = useState<typeof ORBITAL_ASSETS>(ORBITAL_ASSETS);
   const [isDemoMode, setIsDemoMode] = useState(demoModeService.getDemoMode());
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const unsubscribe = demoModeService.subscribe((isDemo) => {
@@ -124,27 +123,27 @@ const App: React.FC = () => {
       }
 
       try {
-        console.log('Triggering auto-fetch from external sources at login...');
-        const fetchResult = await satelliteService.triggerSatelliteFetch(['celestrak']);
+        const satellites = await satelliteService.fetchSatellitesFromBackend(500);
         
-        if (fetchResult.success) {
-          console.log(`Auto-fetch complete: ${fetchResult.count} satellites updated/added`);
-          const satellites = await satelliteService.fetchSatellitesFromBackend(500);
-          const converted = satellites
-            .map(sat => satelliteService.convertToOrbitalAsset(sat))
-            .filter((sat): sat is typeof ORBITAL_ASSETS[0] => sat !== null);
-          setOrbitalAssets(converted.length > 0 ? converted : ORBITAL_ASSETS);
-        } else {
-          console.warn('Satellite fetch failed, loading existing database satellites...');
-          const satellites = await satelliteService.fetchSatellitesFromBackend(500);
-          if (satellites.length > 0) {
-            const converted = satellites
+        if (satellites.length === 0) {
+          console.log('No satellites in database, triggering auto-fetch from external sources...');
+          const fetchResult = await satelliteService.triggerSatelliteFetch(['celestrak']);
+          if (fetchResult.success) {
+            console.log(`Auto-fetch complete: ${fetchResult.count} satellites added`);
+            const updatedSatellites = await satelliteService.fetchSatellitesFromBackend(500);
+            const converted = updatedSatellites
               .map(sat => satelliteService.convertToOrbitalAsset(sat))
               .filter((sat): sat is typeof ORBITAL_ASSETS[0] => sat !== null);
             setOrbitalAssets(converted.length > 0 ? converted : ORBITAL_ASSETS);
           } else {
+            console.warn('Satellite fetch failed, using demo data');
             setOrbitalAssets(ORBITAL_ASSETS);
           }
+        } else {
+          const converted = satellites
+            .map(sat => satelliteService.convertToOrbitalAsset(sat))
+            .filter((sat): sat is typeof ORBITAL_ASSETS[0] => sat !== null);
+          setOrbitalAssets(converted.length > 0 ? converted : ORBITAL_ASSETS);
         }
       } catch (error) {
         console.error('Failed to fetch satellites:', error);
@@ -157,7 +156,7 @@ const App: React.FC = () => {
     const refreshInterval = setInterval(fetchSatellitesAndAutoPopulate, 3600000);
     
     return () => clearInterval(refreshInterval);
-  }, [c2.currentOperator, isDemoMode, isAuthenticated]);
+  }, [c2.currentOperator, isDemoMode]);
 
   useEffect(() => {
     const checkBridge = async () => {
@@ -174,13 +173,8 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleLogin = (username: string) => {
-    c2.login(username);
-    setIsAuthenticated(true);
-  };
-
   if (c2.securityConfig.isAuthEnabled && !c2.currentOperator) {
-    return <LoginScreen onLogin={handleLogin} />;
+    return <LoginScreen onLogin={c2.login} />;
   }
 
   const activeConnection = c2.connections.find(c => c.id === c2.activeConnectionId) || null;
