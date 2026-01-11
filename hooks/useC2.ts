@@ -48,11 +48,6 @@ export const useC2 = () => {
     setOperators([
       { id: 'op1', alias: 'Spectre-Lead', role: 'ADMIN', status: 'active', lastSeen: new Date() }
     ]);
-
-    if (currentOperator) {
-      addConnection({ host: 'DC01.HTB.LOCAL', username: 'Administrator', integrityLevel: 'Administrator', entropy: 45 });
-      addConnection({ host: 'WS-01.HTB.LOCAL', username: 'jsmith', integrityLevel: 'User', entropy: 12 });
-    }
   }, [currentOperator]);
 
   const login = useCallback((user: any) => {

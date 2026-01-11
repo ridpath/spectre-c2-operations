@@ -4,6 +4,7 @@ import { ORBITAL_ASSETS, RF_REGISTRY } from '../constants';
 import OrbitalVisualization from './OrbitalVisualization';
 import LocationDisplay from './LocationDisplay';
 import { locationService } from '../services/locationService';
+import { satelliteService } from '../services/satelliteService';
 import { 
   OrbitalAsset, 
   CCSDSPacket, 
@@ -93,6 +94,7 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
   const [spectrumData, setSpectrumData] = useState<number[]>([]);
   const [observerLat, setObserverLat] = useState<number>(0);
   const [observerLng, setObserverLng] = useState<number>(0);
+  const [constellationFilter, setConstellationFilter] = useState<'All' | 'Overhead' | 'Starlink' | 'Iridium' | 'Weather' | 'GPS' | 'Amateur' | 'ISS' | 'Scientific' | 'Imaging'>('All');
 
   if (satellites.length === 0) {
     return (
@@ -105,8 +107,32 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
       </div>
     );
   }
+
+  // Filter satellites based on constellation
+  const filteredSatellites = React.useMemo(() => {
+    if (constellationFilter === 'All') return satellites;
+    
+    if (constellationFilter === 'Overhead') {
+      return satelliteService.filterOverheadSatellites(satellites, observerLat, observerLng, 10);
+    }
+    
+    return satellites.filter(sat => {
+      const name = sat.designation.toUpperCase();
+      switch (constellationFilter) {
+        case 'Starlink': return name.includes('STARLINK');
+        case 'Iridium': return name.includes('IRIDIUM');
+        case 'Weather': return name.includes('NOAA') || name.includes('GOES') || name.includes('METOP') || name.includes('WEATHER');
+        case 'GPS': return name.includes('GPS') || name.includes('NAVSTAR') || name.includes('GLONASS') || name.includes('GALILEO') || name.includes('BEIDOU');
+        case 'Amateur': return name.includes('AO-') || name.includes('SO-') || name.includes('FO-') || name.includes('AMSAT');
+        case 'ISS': return name.includes('ISS') || name.includes('ZARYA');
+        case 'Scientific': return name.includes('HUBBLE') || name.includes('CHANDRA') || name.includes('SWIFT') || name.includes('FERMI');
+        case 'Imaging': return name.includes('LANDSAT') || name.includes('SENTINEL') || name.includes('WORLDVIEW') || name.includes('KOMPSAT');
+        default: return true;
+      }
+    });
+  }, [satellites, constellationFilter, observerLat, observerLng]);
   
-  const activeSat = liveAsset || satellites.find(s => s.id === selectedSatId) || satellites[0] || ORBITAL_ASSETS[0];
+  const activeSat = liveAsset || filteredSatellites.find(s => s.id === selectedSatId) || filteredSatellites[0] || satellites[0] || ORBITAL_ASSETS[0];
   const waterfallRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const spectrumSocketRef = useRef<WebSocket | null>(null);
@@ -282,17 +308,18 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
              </div>
           </div>
         </div>
-        
-        <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-2xl overflow-x-auto scrollbar-hide max-w-4xl">
-           {[
-             { id: 'tracking', icon: <Globe size={12} />, label: 'Orbit' },
-             { id: 'ccsds', icon: <Hexagon size={12} />, label: 'Forge' },
-             { id: 'dpi', icon: <FileSearch size={12} />, label: 'DPI' },
-             { id: 'subsystems', icon: <Cpu size={12} />, label: 'Subsys' },
-             { id: 'spectral', icon: <Waves size={12} />, label: 'Spectrum' },
-             { id: 'aos', icon: <Calendar size={12} />, label: 'AOS' },
-             { id: 'relay', icon: <Network size={12} />, label: 'Relay' }
-           ].map(tab => (
+
+        <div className="flex flex-col gap-2">
+          <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-2xl overflow-x-auto scrollbar-hide max-w-4xl">
+             {[
+               { id: 'tracking', icon: <Globe size={12} />, label: 'Orbit' },
+               { id: 'ccsds', icon: <Hexagon size={12} />, label: 'Forge' },
+               { id: 'dpi', icon: <FileSearch size={12} />, label: 'DPI' },
+               { id: 'subsystems', icon: <Cpu size={12} />, label: 'Subsys' },
+               { id: 'spectral', icon: <Waves size={12} />, label: 'Spectrum' },
+               { id: 'aos', icon: <Calendar size={12} />, label: 'AOS' },
+               { id: 'relay', icon: <Network size={12} />, label: 'Relay' }
+             ].map(tab => (
              <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
@@ -301,6 +328,19 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
                {tab.icon} {tab.label}
              </button>
            ))}
+          </div>
+          
+          <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/5 shadow-2xl overflow-x-auto scrollbar-hide gap-1">
+             {(['All', 'Overhead', 'Starlink', 'Iridium', 'Weather', 'GPS', 'Amateur', 'ISS', 'Scientific', 'Imaging'] as const).map(filter => (
+               <button 
+                 key={filter}
+                 onClick={() => setConstellationFilter(filter)}
+                 className={`px-3 py-1 rounded-lg text-[8px] font-black uppercase transition-all flex-shrink-0 ${constellationFilter === filter ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+               >
+                 {filter}
+               </button>
+             ))}
+          </div>
         </div>
       </header>
 
@@ -331,7 +371,7 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
              </div>
 
              <div className="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-hide">
-                {satellites.map(sat => (
+                {filteredSatellites.map(sat => (
                   <button
                     key={sat.id}
                     onClick={() => setSelectedSatId(sat.id)}
@@ -412,7 +452,7 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
 
               <div className="flex-1 flex items-center justify-center relative">
                  <OrbitalVisualization 
-                   satellites={satellites}
+                   satellites={filteredSatellites}
                    selectedSatellite={selectedSatId}
                    onSelectSatellite={setSelectedSatId}
                    observerLat={observerLat}
