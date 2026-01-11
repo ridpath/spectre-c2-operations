@@ -1,135 +1,118 @@
-const BACKEND_URL = 'http://localhost:8000/api/v1';
-
-export interface ModuleExecutionRequest {
-  command: string;
-  mission_id?: string;
-}
+const API_URL = 'http://localhost:8000/api/v1';
 
 export interface ModuleExecutionResult {
   success: boolean;
-  output?: string;
-  error?: string;
-  error_type?: string;
   module?: string;
   timestamp?: string;
   execution_id?: string;
-  type?: string;
-  [key: string]: any;
+  output?: string;
+  error?: string;
+  error_type?: string;
+  required_privilege?: string;
 }
 
 export interface ModuleInfo {
-  id: string;
   name: string;
-  category: string;
   description: string;
-  opsec_risk: string;
-  noise_level: number;
-  required_integrity: string;
-  author: string;
-  commands: Array<{
-    trigger: string;
-    description: string;
-  }>;
+  category: string;
+  requires_privilege: string;
+  example: string;
+  args?: string[];
+  risk_level?: string;
 }
 
 class ModuleService {
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem('spectre_access_token');
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : '',
-    };
+  private getAuthToken(): string {
+    return localStorage.getItem('access_token') || '';
   }
 
-  async executeModule(request: ModuleExecutionRequest): Promise<ModuleExecutionResult> {
+  async executeModule(command: string, missionId?: string): Promise<ModuleExecutionResult> {
     try {
-      const response = await fetch(`${BACKEND_URL}/modules/execute`, {
+      const response = await fetch(`${API_URL}/modules/execute`, {
         method: 'POST',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify(request),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify({
+          command,
+          mission_id: missionId
+        })
       });
 
       if (!response.ok) {
         const error = await response.json();
-        return {
-          success: false,
-          error: error.detail || 'Module execution failed',
-          error_type: 'http_error'
-        };
+        throw new Error(error.detail || `Module execution failed: ${response.status}`);
       }
 
-      const result = await response.json();
-      return result;
-    } catch (error) {
+      return await response.json();
+    } catch (error: any) {
+      console.error('Module execution error:', error);
       return {
         success: false,
-        error: `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: error.message || 'Module execution failed',
         error_type: 'network_error'
       };
     }
   }
 
-  async listModules(category?: string): Promise<ModuleInfo[]> {
+  async listModules(category?: string): Promise<{ modules: ModuleInfo[]; total: number; categories: string[] }> {
     try {
       const url = category 
-        ? `${BACKEND_URL}/modules/list?category=${encodeURIComponent(category)}`
-        : `${BACKEND_URL}/modules/list`;
+        ? `${API_URL}/modules/list?category=${encodeURIComponent(category)}`
+        : `${API_URL}/modules/list`;
 
       const response = await fetch(url, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        }
       });
 
       if (!response.ok) {
-        console.error('Failed to fetch modules');
-        return [];
+        throw new Error(`Failed to list modules: ${response.status}`);
       }
 
-      const data = await response.json();
-      return data.modules || [];
-    } catch (error) {
-      console.error('Error fetching modules:', error);
-      return [];
+      return await response.json();
+    } catch (error: any) {
+      console.error('Failed to list modules:', error);
+      return { modules: [], total: 0, categories: [] };
     }
   }
 
-  formatModuleOutput(result: ModuleExecutionResult): string {
-    if (!result.success) {
-      return `[ERROR] ${result.error || 'Execution failed'}`;
-    }
-
-    let output = result.output || '';
-    
-    // Add execution metadata
-    const metadata: string[] = [];
-    if (result.module) metadata.push(`Module: ${result.module}`);
-    if (result.type) metadata.push(`Type: ${result.type}`);
-    if (result.execution_id) metadata.push(`Execution ID: ${result.execution_id}`);
-    
-    if (metadata.length > 0) {
-      output = `[${metadata.join(' | ')}]\n\n${output}`;
-    }
-
-    return output;
+  isOrbitalModule(moduleName: string): boolean {
+    const orbitalModules = [
+      'scan-orbital',
+      'gs-mimic',
+      'ccsds-inject',
+      'ccsds-tm-spoof',
+      'relay-init',
+      'relay-status',
+      'persist-aos'
+    ];
+    return orbitalModules.includes(moduleName);
   }
 
-  getModuleColor(category: string): string {
-    const colors: Record<string, string> = {
-      'Recon': '#10b981',
-      'Exploitation': '#ef4444',
-      'Post-Ex': '#f59e0b',
-      'Persistence': '#8b5cf6',
-    };
-    return colors[category] || '#6b7280';
+  isReconModule(moduleName: string): boolean {
+    const reconModules = [
+      'enum-domain',
+      'scan-network',
+      'scan-ports',
+      'scan-services',
+      'bloodhound',
+      'enum-processes',
+      'enum-modules'
+    ];
+    return reconModules.includes(moduleName);
   }
 
-  getOpsecRiskColor(risk: string): string {
-    const colors: Record<string, string> = {
-      'Low': '#10b981',
-      'Medium': '#f59e0b',
-      'High': '#ef4444',
-    };
-    return colors[risk] || '#6b7280';
+  isExploitModule(moduleName: string): boolean {
+    const exploitModules = [
+      'exploit-eternalblue',
+      'exploit-zerologon',
+      'exploit-printnightmare',
+      'kerberoast'
+    ];
+    return exploitModules.includes(moduleName);
   }
 }
 

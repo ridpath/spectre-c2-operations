@@ -1,5 +1,6 @@
 
 import { WinRMConnection } from '../types';
+import { moduleService } from './moduleService';
 
 export interface CommandResult {
   output: string;
@@ -8,13 +9,27 @@ export interface CommandResult {
 
 export type ShellContext = 'remote' | 'local';
 
-/**
- * ARCHITECTURAL NOTE: 
- * Set USE_TACTICAL_BRIDGE to true when your FastAPI bridge is operational.
- */
-const USE_TACTICAL_BRIDGE = true; // ACTIVATED: Commands now route to backend.py
+const USE_TACTICAL_BRIDGE = true;
 const BRIDGE_URL = 'http://localhost:8000/api/v1';
-const AUTH_TOKEN = 'valid_token'; // Matches backend verify_token dummy check
+
+function getAuthToken(): string {
+  return localStorage.getItem('access_token') || '';
+}
+
+const isModuleCommand = (cmd: string): boolean => {
+  const modulePatterns = [
+    'enum-domain', 'scan-network', 'scan-ports', 'scan-services', 'bloodhound',
+    'enum-processes', 'enum-modules', 'scan-orbital', 'exploit-eternalblue',
+    'exploit-zerologon', 'exploit-printnightmare', 'ccsds-inject', 'ccsds-tm-spoof',
+    'kerberoast', 'harvest-creds', 'lateral-psexec', 'lateral-wmi', 'steal-token',
+    'revert-token', 'exfil-smb', 'relay-init', 'relay-status', 'persist-schtask',
+    'persist-registry', 'persist-service', 'persist-wmi', 'golden-ticket',
+    'persist-aos', 'gs-mimic'
+  ];
+  
+  const cmdLower = cmd.toLowerCase().trim();
+  return modulePatterns.some(pattern => cmdLower.startsWith(pattern));
+};
 
 export const executeCommand = async (
   command: string, 
@@ -23,7 +38,22 @@ export const executeCommand = async (
 ): Promise<CommandResult> => {
   if (USE_TACTICAL_BRIDGE) {
     try {
-      // Mapping frontend CamelCase to backend expected structures
+      if (context === 'local' && isModuleCommand(command)) {
+        const result = await moduleService.executeModule(command);
+        
+        if (result.success) {
+          return {
+            output: result.output || `[MODULE] ${result.module} executed successfully\n${JSON.stringify(result, null, 2)}`,
+            type: 'system'
+          };
+        } else {
+          return {
+            output: `[MODULE_ERROR] ${result.error}\nError Type: ${result.error_type}${result.required_privilege ? `\nRequired Privilege: ${result.required_privilege}` : ''}`,
+            type: 'error'
+          };
+        }
+      }
+
       const connectionPayload = connection ? {
         host: connection.host,
         port: connection.port,
@@ -37,7 +67,7 @@ export const executeCommand = async (
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${AUTH_TOKEN}`
+          'Authorization': `Bearer ${getAuthToken()}`
         },
         body: JSON.stringify({ 
           command, 
@@ -52,8 +82,8 @@ export const executeCommand = async (
       }
 
       return await response.json() as CommandResult;
-    } catch (err) {
-      return { output: "BRIDGE_ERROR: Connection to Tactical Bridge severed. Verify Python backend status.", type: 'error' };
+    } catch (err: any) {
+      return { output: `BRIDGE_ERROR: ${err.message || 'Connection to Tactical Bridge severed'}`, type: 'error' };
     }
   }
 

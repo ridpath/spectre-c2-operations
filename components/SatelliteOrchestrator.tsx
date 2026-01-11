@@ -770,10 +770,32 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
                       </React.Fragment>
                     ))}
                  </div>
-                 <div className="max-w-md mx-auto text-center p-6 bg-blue-500/5 border border-blue-500/10 rounded-[2rem]">
-                    <p className="text-[10px] text-blue-400/60 leading-relaxed font-black uppercase tracking-widest">
-                       Relay active over distributed SIGINT mesh. Synthetic aperture enabled across {meshPeers} terrestrial nodes.
-                    </p>
+                 <div className="max-w-2xl mx-auto space-y-4">
+                    <div className="text-center p-6 bg-blue-500/5 border border-blue-500/10 rounded-[2rem]">
+                      <p className="text-[10px] text-blue-400/60 leading-relaxed font-black uppercase tracking-widest">
+                         Relay active over distributed SIGINT mesh. Synthetic aperture enabled across {meshPeers} terrestrial nodes.
+                      </p>
+                    </div>
+                    <div className="p-6 bg-black/40 border border-white/5 rounded-[2rem]">
+                      <h4 className="text-xs font-black text-white uppercase mb-3">Backend Integration</h4>
+                      <div className="space-y-2 text-[10px] font-mono text-slate-400">
+                        <div className="flex items-center gap-2">
+                          <span className="text-emerald-400">→</span> Use Terminal (Local Core) to execute:
+                        </div>
+                        <div className="pl-4 p-2 bg-black/60 rounded border border-white/5 text-blue-400">
+                          relay-init --hops LEO-GEO-LEO
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-emerald-400">→</span> Check relay status:
+                        </div>
+                        <div className="pl-4 p-2 bg-black/60 rounded border border-white/5 text-blue-400">
+                          relay-status
+                        </div>
+                        <div className="text-[9px] text-slate-600 mt-2">
+                          * Commands route to backend /api/v1/modules/execute
+                        </div>
+                      </div>
+                    </div>
                  </div>
               </div>
             </div>
