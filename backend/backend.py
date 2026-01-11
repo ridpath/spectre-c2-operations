@@ -1074,6 +1074,77 @@ async def list_satellites(
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
+@app.post("/api/v1/satellites/fetch-all")
+async def fetch_satellites_from_sources(
+    sources: Optional[List[str]] = None,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Fetch satellites from external sources and populate database"""
+    try:
+        from satellite_tle_fetcher import tle_fetcher
+        
+        if sources is None or 'celestrak' in sources:
+            print("[INFO] Fetching satellites from CelesTrak...")
+            satellites = await tle_fetcher.fetch_all_groups()
+            
+            if not satellites:
+                return {
+                    "success": False,
+                    "message": "Failed to fetch satellites from CelesTrak",
+                    "count": 0
+                }
+            
+            count = 0
+            for sat in satellites:
+                try:
+                    existing = db.query(TLEData).filter(TLEData.norad_id == sat['norad_id']).first()
+                    if existing:
+                        existing.tle_line1 = sat['tle_line1']
+                        existing.tle_line2 = sat['tle_line2']
+                        existing.epoch = sat['epoch']
+                        existing.source = 'celestrak'
+                    else:
+                        tle_entry = TLEData(
+                            id=uuid.uuid4(),
+                            satellite_name=sat['name'],
+                            norad_id=sat['norad_id'],
+                            tle_line1=sat['tle_line1'],
+                            tle_line2=sat['tle_line2'],
+                            epoch=sat['epoch'],
+                            source='celestrak'
+                        )
+                        db.add(tle_entry)
+                    count += 1
+                except Exception as e:
+                    print(f"[ERROR] Failed to add satellite {sat.get('name', '?')}: {e}")
+                    continue
+            
+            db.commit()
+            
+            return {
+                "success": True,
+                "message": f"Successfully fetched {count} satellites from CelesTrak",
+                "count": count
+            }
+        
+        return {
+            "success": False,
+            "message": "No valid sources specified",
+            "count": 0
+        }
+    
+    except Exception as e:
+        print(f"[ERROR] fetch_satellites_from_sources: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            "success": False,
+            "message": f"Error: {str(e)}",
+            "count": 0
+        }
+
+
 @app.get("/api/v1/satellites/{norad_id}")
 async def get_satellite_info(
     norad_id: int,

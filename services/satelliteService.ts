@@ -20,6 +20,8 @@ interface SatelliteData {
   inclination_deg?: number;
   classification?: string;
   created_at?: string;
+  epoch?: string;
+  source?: string;
 }
 
 class SatelliteService {
@@ -316,13 +318,16 @@ class SatelliteService {
         line2: satData.tle_line2
       });
 
-      if (!position) return null;
+      if (!position) {
+        console.warn(`Failed to propagate TLE for ${satData.name} (NORAD: ${satData.norad_id})`);
+        return null;
+      }
 
       return {
         id: satData.id,
         designation: satData.name,
         noradId: satData.norad_id,
-        type: satData.altitude_km && satData.altitude_km < 2000 ? 'LEO' : 'GEO',
+        type: position.altitude < 2000 ? 'LEO' : 'GEO',
         inclination: satData.inclination_deg || 0,
         altitude: satData.altitude_km || position.altitude,
         snr: 0,
@@ -337,12 +342,12 @@ class SatelliteService {
         tle: {
           line1: satData.tle_line1,
           line2: satData.tle_line2,
-          epoch: satData.created_at || new Date().toISOString()
+          epoch: satData.epoch || satData.created_at || new Date().toISOString()
         },
         subsystems: []
       };
     } catch (error) {
-      console.error('Error converting satellite data:', error);
+      console.error(`Error converting satellite ${satData.name} (NORAD: ${satData.norad_id}):`, error);
       return null;
     }
   }
