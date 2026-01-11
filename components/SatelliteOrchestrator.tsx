@@ -110,26 +110,35 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
 
   // Filter satellites based on constellation
   const filteredSatellites = React.useMemo(() => {
-    if (constellationFilter === 'All') return satellites;
-    
-    if (constellationFilter === 'Overhead') {
-      return satelliteService.filterOverheadSatellites(satellites, observerLat, observerLng, 10);
-    }
-    
-    return satellites.filter(sat => {
-      const name = sat.designation.toUpperCase();
-      switch (constellationFilter) {
-        case 'Starlink': return name.includes('STARLINK');
-        case 'Iridium': return name.includes('IRIDIUM');
-        case 'Weather': return name.includes('NOAA') || name.includes('GOES') || name.includes('METOP') || name.includes('WEATHER');
-        case 'GPS': return name.includes('GPS') || name.includes('NAVSTAR') || name.includes('GLONASS') || name.includes('GALILEO') || name.includes('BEIDOU');
-        case 'Amateur': return name.includes('AO-') || name.includes('SO-') || name.includes('FO-') || name.includes('AMSAT');
-        case 'ISS': return name.includes('ISS') || name.includes('ZARYA');
-        case 'Scientific': return name.includes('HUBBLE') || name.includes('CHANDRA') || name.includes('SWIFT') || name.includes('FERMI');
-        case 'Imaging': return name.includes('LANDSAT') || name.includes('SENTINEL') || name.includes('WORLDVIEW') || name.includes('KOMPSAT');
-        default: return true;
+    try {
+      if (constellationFilter === 'All') return satellites;
+      
+      if (constellationFilter === 'Overhead') {
+        if (!satelliteService) {
+          console.error('satelliteService not available');
+          return satellites;
+        }
+        return satelliteService.filterOverheadSatellites(satellites, observerLat, observerLng, 10);
       }
-    });
+      
+      return satellites.filter(sat => {
+        const name = sat.designation.toUpperCase();
+        switch (constellationFilter) {
+          case 'Starlink': return name.includes('STARLINK');
+          case 'Iridium': return name.includes('IRIDIUM');
+          case 'Weather': return name.includes('NOAA') || name.includes('GOES') || name.includes('METOP') || name.includes('WEATHER');
+          case 'GPS': return name.includes('GPS') || name.includes('NAVSTAR') || name.includes('GLONASS') || name.includes('GALILEO') || name.includes('BEIDOU');
+          case 'Amateur': return name.includes('AO-') || name.includes('SO-') || name.includes('FO-') || name.includes('AMSAT');
+          case 'ISS': return name.includes('ISS') || name.includes('ZARYA');
+          case 'Scientific': return name.includes('HUBBLE') || name.includes('CHANDRA') || name.includes('SWIFT') || name.includes('FERMI');
+          case 'Imaging': return name.includes('LANDSAT') || name.includes('SENTINEL') || name.includes('WORLDVIEW') || name.includes('KOMPSAT');
+          default: return true;
+        }
+      });
+    } catch (error) {
+      console.error('Error filtering satellites:', error);
+      return satellites;
+    }
   }, [satellites, constellationFilter, observerLat, observerLng]);
   
   const activeSat = liveAsset || filteredSatellites.find(s => s.id === selectedSatId) || filteredSatellites[0] || satellites[0] || ORBITAL_ASSETS[0];
