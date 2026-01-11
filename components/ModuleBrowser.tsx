@@ -13,10 +13,13 @@ const ModuleBrowser: React.FC<ModuleBrowserProps> = ({ activeConnection, onTaskM
   const [filter, setFilter] = useState<string>('All');
   const [search, setSearch] = useState('');
 
-  const filteredModules = OFFENSIVE_REGISTRY.filter(m => 
-    (filter === 'All' || m.category === filter) &&
-    (m.name.toLowerCase().includes(search.toLowerCase()) || m.description.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filteredModules = OFFENSIVE_REGISTRY.filter(m => {
+    const matchesCategory = filter === 'All' || m.category === filter;
+    const matchesSearch = search === '' || 
+      m.name.toLowerCase().includes(search.toLowerCase()) || 
+      m.description.toLowerCase().includes(search.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="h-full flex flex-col gap-6 animate-in fade-in duration-500">
@@ -55,7 +58,7 @@ const ModuleBrowser: React.FC<ModuleBrowserProps> = ({ activeConnection, onTaskM
       <div className="flex-1 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-20 scrollbar-hide">
         {filteredModules.map(module => {
           const isCompatible = activeConnection ? 
-            (module.requiredIntegrity === 'User' || activeConnection.integrityLevel === module.requiredIntegrity || activeConnection.integrityLevel === 'SYSTEM') : false;
+            (module.requiredIntegrity === 'User' || activeConnection.integrityLevel === module.requiredIntegrity || activeConnection.integrityLevel === 'SYSTEM') : true;
 
           return (
             <div 

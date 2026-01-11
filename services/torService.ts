@@ -27,7 +27,7 @@ export interface TorStatus {
 
 class TorService {
   private getAuthToken(): string {
-    return localStorage.getItem('access_token') || '';
+    return localStorage.getItem('spectre_access_token') || '';
   }
 
   async getStatus(): Promise<TorStatus | null> {

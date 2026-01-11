@@ -116,3 +116,23 @@ ehthumbs.db
 *.temp
 temp/
 tmp/
+
+# Test files and artifacts
+backend/test_*.py
+backend/test_*.json
+backend/*.db-journal
+backend/*.db-shm
+backend/*.db-wal
+backend/populate_*.py
+backend/check_*.py
+backend/create_test_*.py
+backend/init_db_*.py
+backend/spectre.db
+backend/storage/
+backend/iq_recordings/
+backend/evidence/
+backend/reports/
+
+# Logs and shell history
+*.log*
+shell-logs/

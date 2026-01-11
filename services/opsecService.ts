@@ -11,7 +11,7 @@ export interface OpsecLog {
 
 class OpsecService {
   private getAuthToken(): string {
-    return localStorage.getItem('access_token') || '';
+    return localStorage.getItem('spectre_access_token') || '';
   }
 
   async getLogs(limit: number = 100): Promise<OpsecLog[]> {

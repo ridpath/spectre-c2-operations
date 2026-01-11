@@ -1,168 +1,337 @@
 # Spectre C2 Operations Center
 
-**Operational Designation:** Professional Engagement and Orbital SIGINT Framework  
 **Version:** 5.0.0  
-**Research Tier:** Professional Satellite Exploitation & Aerospace Security Testing  
-**Lead Architect:** Security Research Division  
-
-![Status: Enhanced](https://img.shields.io/badge/status-enhanced-brightgreen)
-![Domain: Astro-Sec](https://img.shields.io/badge/domain-astro--sec-blue)
-![Protocols: WinRM | CCSDS | DVB--S2 | AX.25 | LRPT](https://img.shields.io/badge/protocols-WinRM%20%7C%20CCSDS%20%7C%20DVB--S2%20%7C%20AX.25-purple)
-![Architecture: Tactical Bridge](https://img.shields.io/badge/architecture-tactical--bridge-orange)
-![Signal: Spectral Mimicry](https://img.shields.io/badge/signal-spectral--mimicry-lightgrey)
-![License: Research Only](https://img.shields.io/badge/license-research--only-red)
+**Type:** Satellite Security Assessment & Red Team Operations Platform  
+**Status:** Production Ready
 
 ---
 
-Spectre C2 is a professional orbital penetration testing platform engineered for comprehensive satellite security assessment, advanced WinRM operations, and sophisticated RF exploitation. Version 5.0.0 introduces satellite exploit orchestration, firmware analysis, cryptanalysis capabilities, and precision RF signal planning tools.
+## Overview
+
+Spectre C2 is a full-stack command and control platform designed for satellite security research, orbital asset assessment, and red team operations. The system combines traditional C2 capabilities with specialized satellite tracking, RF analysis, and orbital mechanics computation.
+
+### Key Features
+
+- **Offensive Module Engine**: 29 pre-built modules across reconnaissance, exploitation, post-exploitation, and persistence
+- **Satellite Tracking**: Real-time orbital propagation using SGP4/TLE data from CelesTrak and Space-Track
+- **C2 Operations**: WinRM-based agent management with task execution and evidence collection
+- **RF Spectrum Analysis**: Real-time spectrum visualization and signal mimicry
+- **Mission Planning**: Automated pass prediction and link budget calculation
+- **Evidence Management**: Comprehensive artifact collection and reporting
+
+## System Architecture
+
+### Backend (FastAPI/Python)
+- **Framework:** FastAPI with async/await support
+- **Database:** SQLite (default) or PostgreSQL for production
+- **Authentication:** JWT-based with role-based access control (RBAC)
+- **Performance:** Connection pooling, in-memory caching, database indexing
+- **Security:** Rate limiting, SQL injection protection, HTTPS enforcement
+
+### Frontend (React/TypeScript)
+- **Framework:** React 18 with TypeScript
+- **State Management:** Custom hooks for C2 operations
+- **Build Tool:** Vite for fast development and optimized production builds
+- **UI Library:** Tailwind CSS with custom component library
+- **Real-time Updates:** WebSocket support for live telemetry
+
+### Database Schema
+- **Users & Authentication:** User accounts, roles, audit logs
+- **Satellites:** TLE data, orbital parameters, pass predictions
+- **Missions:** Mission planning, evidence collection, reporting
+- **C2 Operations:** Agents, tasks, listeners, payloads
+- **Security:** Vulnerabilities, exploits, attack chains
+
+## Feature Modules
+
+### Capability Engine (Offensive Modules)
+29 operational modules across 4 categories:
+
+**Reconnaissance (8 modules)**
+- Domain enumeration (AD users, groups, trusts)
+- Network and port scanning
+- Service enumeration
+- BloodHound data collection
+- Process and module enumeration
+- Orbital asset scanning
+
+**Exploitation (6 modules)**
+- EternalBlue (MS17-010)
+- Zerologon (CVE-2020-1472)
+- PrintNightmare (CVE-2021-1675)
+- CCSDS packet injection
+- Kerberoasting
+
+**Post-Exploitation (8 modules)**
+- Credential harvesting (LSASS, SAM, DCSync)
+- Lateral movement (PsExec, WMI)
+- Token manipulation
+- SMB data exfiltration
+- Orbital relay initialization
+
+**Persistence (7 modules)**
+- Scheduled tasks
+- Registry run keys
+- Windows services
+- WMI event subscriptions
+- Golden ticket generation
+- Satellite AOS triggers
+- Ground station mimicry
+
+### Satellite Operations
+
+**Orbital Tracking**
+- Real-time SGP4 propagation engine
+- TLE data from CelesTrak and Space-Track
+- Position, velocity, and look angle computation
+- Doppler shift calculation
+
+**Mission Planning**
+- Pass prediction for satellite visibility windows
+- Link budget calculation for RF operations
+- Mission timeline visualization
+- Evidence collection and reporting
+
+**RF Analysis**
+- Spectrum visualization
+- Signal profile generation
+- Protocol analysis (CCSDS, AX.25, DVB-S2)
+- Ground station mimicry
+
+### C2 Operations
+
+**Agent Management**
+- WinRM-based agent connectivity
+- Task execution and response handling
+- File upload/download
+- Interactive shell sessions
+
+**Payload Generation**
+- Msfvenom integration
+- Custom payload templates
+- Obfuscation and encoding
+- Multi-stage delivery
+
+**Evidence & Reporting**
+- Artifact collection and categorization
+- Screenshot capture
+- Credential harvesting logs
+- Automated report generation
 
 ---
 
-## Core Operational Modules
+## Installation and Setup
 
-### 1. Nexus Topology and Real-Time Telemetry
-Centralized visualization of the engagement mesh. This module utilizes WebSockets to stream live entropy data and beacon states from the Tactical Bridge. It provides a direct interface for node tasking and WinRM session management with structured logging and rate-limiting.
+### Prerequisites
 
-### 2. Celestial Breach (Orbital SIGINT)
-Comprehensive satellite engagement suite with real-time propagation:
-- **Orbital Tracking:** Live position updates via WebSocket stream (1Hz) driven by Skyfield SGP4 propagation.
-- **Hi-Fi Data Sources:** Support for high-fidelity TLE data via Space-Track API (Session-Auth) and standard catalog syncing via CelesTrak.
-- **Multi-Protocol Support:** CCSDS, DVB-S2, AX.25, LRPT protocol engines with packet forging capabilities.
-- **Hardware Integration:** Direct uplink/downlink hooks for RTL-SDR, HackRF, and USRP X410 devices.
-- **Subsystem Telemetry:** Live monitoring of EPS, AOCS, and Thermal hardware states with automated spoofing detection.
+- Node.js 18+ ([Download](https://nodejs.org/))
+- Python 3.10+ ([Download](https://www.python.org/downloads/))
+- Git
 
-### 3. Satellite Exploit Orchestrator **[NEW]**
-Automated attack chain execution framework for satellite penetration testing:
-- **Pre-Built Exploit Chains:** CubeSat takeover, weather satellite hijack, commercial satellite denial, amateur beacon spoofing
-- **Real-Time Execution Monitoring:** Step-by-step attack progress with detailed logging
-- **Risk Assessment:** OpSec risk ratings and success probability indicators
-- **Legal Compliance Warnings:** Automatic alerts for high-risk operations
+### Quick Start
 
-### 4. Firmware Analysis Studio **[NEW]**
-Comprehensive satellite firmware reverse engineering and vulnerability detection:
-- **Hex Editor:** Monaco-powered hex viewer for binary inspection
-- **Architecture Detection:** ARM, AVR, SPARC, MIPS, x86, PowerPC support
-- **Vulnerability Scanning:** Automated detection of hardcoded credentials, buffer overflows, weak crypto
-- **Disassembly:** Built-in disassembler for firmware analysis
-- **String Extraction:** Automatic extraction of sensitive strings and crypto keys
+**1. Clone Repository**
+```bash
+git clone <repository-url>
+cd spectre-c2
+```
 
-### 5. Cryptanalysis Laboratory **[NEW]**
-Advanced satellite encryption breaking and key recovery:
-- **Known-Plaintext Attacks:** Exploit predictable telemetry patterns (NORAD ID, TLE epoch)
-- **Side-Channel Timing Attacks:** Measure command processing latency to extract keys
-- **GPU-Accelerated Brute Force:** CUDA/OpenCL support for parallel key search
-- **Differential Cryptanalysis:** Analyze ciphertext pairs for implementation weaknesses
-- **Success Tracking:** Historical attack success rates and recovered key database
+**2. Backend Setup**
+```bash
+cd backend
+python -m venv venv
 
-### 6. Link Budget Calculator **[NEW]**
-Precision RF signal planning for satellite operations:
-- **FSPL Calculation:** Accurate free space path loss computation
-- **Atmospheric Loss Modeling:** Weather and rain attenuation factors
-- **SNR Analysis:** Signal-to-noise ratio prediction with link margin calculation
-- **Quick Presets:** LEO UHF, S-Band, X-Band configuration templates
-- **Viability Assessment:** Automatic link feasibility determination with recommendations
+# Windows
+venv\Scripts\activate
 
-### 7. Artifact Foundry (QuantumForge)
-High-stealth payload synthesis engine. Architects heapless stagers with modular evasion parameters including Indirect Syscalls, Sleep Masking, PPID Spoofing, and ETW/AMSI patching.
+# Linux/macOS
+source venv/bin/activate
 
-### 8. Spectrum Studio (Signal Mimicry)
-Real-time RF waterfall display and traffic shaping engine. Visualizes live SDR input or synthetic signal profiles to facilitate behavioral signal orchestration and protocol-level mimicry.
+pip install -r requirements.txt
+```
 
----
+**3. Initialize Database**
+```bash
+# Create database schema
+python init_db.py
 
-## Tactical Bridge (STB) Integration
+# Create admin user (username: admin, password: admin123)
+python create_test_admin.py
 
-The Spectre Tactical Bridge (STB) is the mandatory backend translation layer. It manages hardware interfaces, orbital mechanics calculations, and remote WinRM tasking.
+# Apply performance indexes
+python add_indexes.py
+```
 
-### Implementation Stack
-- **API Framework:** FastAPI with Uvicorn (Asynchronous I/O).
-- **Security:** HTTP Bearer token validation and mTLS/SSL support for secure signal transport.
-- **WinRM Engine:** PyWinRM for remote shell execution over encrypted channels.
-- **Hardware Failover:** Intelligent loop logic that automatically reverts to "Virtual Relay Mode" (Simulation) if physical SDR hardware is disconnected, with periodic auto-retry.
-- **Signal Processing:** Integrated GNU Radio top-block support for advanced DSP flowgraphs on USRP devices.
+**4. Frontend Setup**
+```bash
+cd ..
+npm install
+npm run build
+```
 
-### Deployment Sequence
-1. **Bridge Initialization:** Execute the Python backend (`python backend.py`). 
-2. **Environment Configuration:** Define `SPACETRACK_USER` and `SPACETRACK_PASS` for high-fidelity data access.
-3. **Signal Synchronization:** Verify the "BRIDGE" status indicator in the UI header. An emerald state indicates a successful hardware lock or relay sync.
-4. **Catalog Update:** Use the "Hi-Fi Sync" trigger in the UI to pull the latest orbital elements for specific constellations (Starlink, Iridium, Stations).
+**5. Start Services**
 
----
+**Terminal 1 - Backend:**
+```bash
+cd backend
+venv\Scripts\activate  # or source venv/bin/activate on Linux/macOS
+uvicorn backend:app --reload --port 8000
+```
 
-## Windows Installation
+**Terminal 2 - Frontend:**
+```bash
+npm run dev
+```
 
-**Quick Start (Windows 10/11)**:
+**6. Access Application**
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:8000`
+- API Documentation: `http://localhost:8000/docs`
 
-1. **Prerequisites**:
-   - Install [Node.js](https://nodejs.org/) (v18+)
-   - Install [Python 3.10+](https://www.python.org/downloads/)
-   - Install [PostgreSQL](https://www.postgresql.org/download/windows/) or use SQLite (default)
+**7. Login**
+```
+Username: admin
+Password: admin123
+```
 
-2. **Automated Installation**:
-   ```powershell
-   # Run as Administrator
-   .\install.ps1
-   ```
+**IMPORTANT:** Change default credentials immediately in production environments.
 
-3. **Manual Installation**:
-   ```powershell
-   # Backend setup
-   cd backend
-   python -m venv venv
-   .\venv\Scripts\Activate.ps1
-   pip install -r requirements.txt
-   python init_db_sqlite.py
-   cd ..
+### Environment Configuration
 
-   # Frontend setup
-   npm install
-   ```
+Create `.env` file in `backend/` directory:
 
-4. **Start Services**:
-   ```powershell
-   # Option 1: Automated launcher
-   .\start.bat
+```bash
+# Database (optional - defaults to SQLite)
+DATABASE_URL=sqlite:///./spectre.db
 
-   # Option 2: Manual start
-   # Terminal 1: Backend
-   cd backend
-   .\venv\Scripts\Activate.ps1
-   python backend.py
+# JWT Security (REQUIRED for production)
+JWT_SECRET_KEY=your-secret-key-minimum-32-characters
 
-   # Terminal 2: Frontend
-   npm run dev
-   ```
+# External API Keys (optional)
+CELESTRAK_API_KEY=your-key
+SPACETRACK_USERNAME=your-username
+SPACETRACK_PASSWORD=your-password
+N2YO_API_KEY=your-key
 
-5. **Access**:
-   - Frontend: `http://localhost:3001`
-   - Backend API: `http://localhost:8000`
-   - API Docs: `http://localhost:8000/docs`
-   - Default Login: `admin` / `admin123`
+# Performance Tuning
+CACHE_ENABLED=true
+CACHE_TTL_SECONDS=300
+DATABASE_POOL_SIZE=20
+DATABASE_MAX_OVERFLOW=40
+```
 
-**Note**: SDR hardware features require additional Windows drivers or WSL. See `install.ps1` for WSL installation.
+## Usage Guide
 
----
+### Initial Login
+1. Navigate to `http://localhost:3000`
+2. Enter credentials: `admin` / `admin123`
+3. System will authenticate and load operator session
 
-## Hardware and SDR Configuration
+### Running Offensive Modules
+1. Navigate to **Offensive > Modules** tab
+2. Filter by category (All, Recon, Exploitation, Post-Ex, Persistence)
+3. Click module command button to insert into terminal
+4. Commands are executed against active C2 agent
 
-The platform supports multiple RF operational modes via the `SDR_TYPE` environment variable:
-- **sim:** Synthetic signal generation based on real-world orbital distance (FSPL calculations).
-- **rtl:** Real-time receive-only via RTL-SDR (requires Windows drivers).
-- **hackrf:** Half-duplex transceiver operations for packet injection and OOK modulation (requires Windows drivers).
-- **usrp:** High-performance RX/TX via UHD (Optimized for USRP X410, requires Windows UHD build).
-- **gnuradio_usrp:** Advanced DSP via multi-threaded GNU Radio flowgraphs (requires WSL or Windows GNU Radio build).
+### Satellite Tracking
+1. Navigate to **Intel > Orbital** tab
+2. System loads satellites from database
+3. Click satellite for detailed view
+4. Use **Satellite > Timeline** for pass predictions
 
----
+### Mission Planning
+1. Navigate to **Satellite > Missions** tab
+2. Click **New Mission** button
+3. Select target satellite and objectives
+4. System calculates optimal execution windows
 
-## Ethical Mandate and Legal Disclaimer
+### Evidence Collection
+1. Navigate to **Intel > Vault** tab
+2. All mission artifacts automatically collected
+3. Filter by category (credentials, screenshots, files)
+4. Export evidence for reporting
 
-Spectre is strictly intended for authorized security research, red-teaming, and aerospace security analysis within controlled laboratory environments.
+### Testing Backend
+Run comprehensive test suite:
+```bash
+cd backend
+python run_all_tests.py
+```
 
-1. **Authorization:** Deployment without explicit, written consent is a violation of law.
-2. **Liability:** The development division assumes no liability for misuse.
-3. **Compliance:** Operators must ensure activities comply with local RF transmission regulations and Space Defense Squadron data usage policies.
+Test individual components:
+```bash
+# Authentication endpoints
+python test_auth_endpoints.py
 
-Unauthorized use of this technology can lead to severe criminal penalties.
+# Module execution
+python test_module_executor.py
+
+# Satellite operations
+python test_backend_services.py
+```
+
+## Performance Optimization
+
+The system includes production-grade performance features:
+
+**Database Optimization**
+- Connection pooling (20 base connections, 40 overflow)
+- 25+ indexes on frequently queried columns
+- Query result caching with TTL
+
+**Caching Layer**
+- In-memory cache for satellites, modules, templates
+- Configurable TTL (default 300 seconds)
+- Automatic cache invalidation
+
+**Concurrent Request Handling**
+- Supports 60+ simultaneous connections
+- Async/await throughout backend
+- Non-blocking database operations
+
+## Security Considerations
+
+**Production Deployment Checklist**
+1. Change default admin password
+2. Set strong JWT_SECRET_KEY (32+ characters)
+3. Enable HTTPS with valid SSL certificates
+4. Configure firewall rules (ports 8000, 3000)
+5. Use PostgreSQL instead of SQLite
+6. Enable rate limiting and request validation
+7. Review CORS origins in backend config
+8. Implement IP whitelisting if needed
+9. Regular security audits and updates
+10. Monitor audit logs for suspicious activity
+
+## Legal and Ethical Use
+
+**IMPORTANT:** This system is designed for authorized security research and red team operations only.
+
+**Requirements for Legal Use:**
+- Written authorization from asset owners
+- Defined scope of engagement
+- Compliance with local laws and regulations
+- Proper documentation and reporting
+- No unauthorized RF transmissions
+
+**Prohibited Activities:**
+- Unauthorized access to computer systems
+- Interference with satellite operations
+- Unlicensed RF transmission
+- Data theft or destruction
+- Any activity violating applicable laws
+
+**User Responsibility:**
+Operators are solely responsible for ensuring all activities comply with applicable laws, regulations, and authorizations. The developers assume no liability for misuse of this software.
 
 ## License
-Project Spectre is licensed for authorized laboratory use only.
+
+This software is provided for authorized security research and educational purposes only. Commercial use, redistribution, or deployment without proper authorization is prohibited.
+
+## Support and Documentation
+
+- API Documentation: `http://localhost:8000/docs`
+- Health Check: `http://localhost:8000/health`
+- Detailed Health: `http://localhost:8000/health/detailed`
+
+For issues, feature requests, or security concerns, contact the development team through official channels.
