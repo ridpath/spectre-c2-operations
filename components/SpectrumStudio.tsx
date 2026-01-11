@@ -92,7 +92,7 @@ const SpectrumStudio: React.FC = () => {
       <header className="flex justify-between items-start">
         <div className="flex flex-col gap-1">
           <h2 className="text-2xl font-black text-blue-400 uppercase tracking-tighter flex items-center gap-3">
-            <Wifi size={24} /> Spectrum Studio v4.6
+            <Wifi size={24} /> Spectrum Studio
           </h2>
           <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1">Professional RF Orchestration & Mimicry</p>
         </div>

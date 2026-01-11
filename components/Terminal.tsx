@@ -210,7 +210,7 @@ const Terminal = forwardRef<TerminalHandle, TerminalProps>(({ connection, onComm
         {terminal.lines.length === 0 && (
           <div className="flex flex-col gap-2">
             <div className="text-emerald-500/40 text-[10px] font-black uppercase tracking-[0.5em] pb-4 border-b border-white/5">
-              [ SPECTRE C2 WINRM SHELL v4.1.2-STABLE ]
+              [ SPECTRE C2 WINRM SHELL ]
             </div>
             <div className="text-slate-800 text-[10px] font-mono italic">
               * Initializing WinRM Secure Transport over SOCKS5h...<br/>

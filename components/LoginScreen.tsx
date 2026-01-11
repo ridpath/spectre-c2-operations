@@ -46,7 +46,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           <header className="text-center mb-10">
             <h1 className="text-2xl font-black text-white uppercase tracking-tighter">Spectre C2 Gateway</h1>
-            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.4em] mt-2">Team Operational Logic v4.1</p>
+            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.4em] mt-2">Professional C2 Platform</p>
           </header>
 
           <form onSubmit={handleEntry} className="w-full space-y-6">

@@ -10,7 +10,7 @@ python backend.py
 
 Expected output:
 ```
-Starting Spectre C2 Operations Center v5.0.0-TACTICAL-ELITE
+Starting Spectre C2 Operations Center v5.0.0
 Database: spectre_c2.db
 INFO:     Started server process
 INFO:     Uvicorn running on http://0.0.0.0:8000
@@ -26,7 +26,7 @@ Expected response:
 {
   "status": "operational",
   "app": "Spectre C2 Operations Center",
-  "version": "5.0.0-TACTICAL-ELITE",
+  "version": "5.0.0",
   "timestamp": "2026-01-11T..."
 }
 ```

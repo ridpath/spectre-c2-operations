@@ -340,7 +340,7 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
             <Satellite size={24} /> Orbital Engagement Nexus
           </h2>
           <div className="flex items-center gap-3 mt-1">
-             <p className="text-[10px] text-slate-500 uppercase tracking-[0.25em] font-black">Professional SIGINT v4.6.0</p>
+             <p className="text-[10px] text-slate-500 uppercase tracking-[0.25em] font-black">Professional SIGINT Platform</p>
              <div className="h-3 w-[1px] bg-slate-800"></div>
              <div className="flex items-center gap-1.5">
                 <div className={`w-1.5 h-1.5 rounded-full ${dataSource === 'BRIDGE' ? 'bg-emerald-500 animate-pulse' : 'bg-blue-500'}`}></div>
