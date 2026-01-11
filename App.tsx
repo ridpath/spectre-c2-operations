@@ -122,28 +122,35 @@ const App: React.FC = () => {
         return;
       }
 
+      const token = localStorage.getItem('spectre_access_token');
+      if (!token) {
+        console.log('Waiting for authentication token before fetching satellites...');
+        setTimeout(fetchSatellitesAndAutoPopulate, 500);
+        return;
+      }
+
       try {
-        const satellites = await satelliteService.fetchSatellitesFromBackend(500);
+        console.log('Triggering auto-fetch from external sources at login...');
+        const fetchResult = await satelliteService.triggerSatelliteFetch(['celestrak']);
         
-        if (satellites.length === 0) {
-          console.log('No satellites in database, triggering auto-fetch from external sources...');
-          const fetchResult = await satelliteService.triggerSatelliteFetch(['celestrak']);
-          if (fetchResult.success) {
-            console.log(`Auto-fetch complete: ${fetchResult.count} satellites added`);
-            const updatedSatellites = await satelliteService.fetchSatellitesFromBackend(500);
-            const converted = updatedSatellites
-              .map(sat => satelliteService.convertToOrbitalAsset(sat))
-              .filter((sat): sat is typeof ORBITAL_ASSETS[0] => sat !== null);
-            setOrbitalAssets(converted.length > 0 ? converted : ORBITAL_ASSETS);
-          } else {
-            console.warn('Satellite fetch failed, using demo data');
-            setOrbitalAssets(ORBITAL_ASSETS);
-          }
-        } else {
+        if (fetchResult.success) {
+          console.log(`Auto-fetch complete: ${fetchResult.count} satellites updated/added`);
+          const satellites = await satelliteService.fetchSatellitesFromBackend(500);
           const converted = satellites
             .map(sat => satelliteService.convertToOrbitalAsset(sat))
             .filter((sat): sat is typeof ORBITAL_ASSETS[0] => sat !== null);
           setOrbitalAssets(converted.length > 0 ? converted : ORBITAL_ASSETS);
+        } else {
+          console.warn('Satellite fetch failed, loading existing database satellites...');
+          const satellites = await satelliteService.fetchSatellitesFromBackend(500);
+          if (satellites.length > 0) {
+            const converted = satellites
+              .map(sat => satelliteService.convertToOrbitalAsset(sat))
+              .filter((sat): sat is typeof ORBITAL_ASSETS[0] => sat !== null);
+            setOrbitalAssets(converted.length > 0 ? converted : ORBITAL_ASSETS);
+          } else {
+            setOrbitalAssets(ORBITAL_ASSETS);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch satellites:', error);
