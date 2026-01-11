@@ -1,126 +1,59 @@
+<!--
+Spectre C2, satellite penetration testing, satellite security assessment platform, space systems red teaming,
+orbital security testing, CCSDS security research, satellite C2 framework, RF security assessment,
+ground station security testing, space cybersecurity research, satellite threat modeling, orbital red team toolkit
+-->
+
 # Spectre C2 Operations Center
 
-**Version:** 5.0.0  
-**Type:** Satellite Security Assessment & Red Team Operations Platform  
-**Status:** Production Ready
+![Status: Alpha](https://img.shields.io/badge/status-alpha_active_research-yellow)
+![Use Authorized Research Only](https://img.shields.io/badge/Use-Authorized_Research_Only-blueviolet)
+![Domain: Astro-Sec](https://img.shields.io/badge/domain-astro--sec-blue)
+![Satellite Security](https://img.shields.io/badge/Domain-Satellite_Security-informational)
+![Red Team Research](https://img.shields.io/badge/Focus-Red_Team_Research-critical)
+![Security Research](https://img.shields.io/badge/Category-Security_Research-blue)
+![Protocols](https://img.shields.io/badge/protocols-WinRM%20%7C%20CCSDS%20%7C%20DVB--S2-purple)
+![FastAPI](https://img.shields.io/badge/API-FastAPI-009688)
+![Python](https://img.shields.io/badge/Backend-Python_3.10%2B-3776AB)
+![React](https://img.shields.io/badge/Frontend-React_18-61DAFB)
+![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6)
 
 ---
 
-## Overview
+## Executive Overview
 
-Spectre C2 is a full-stack command and control platform designed for satellite security research, orbital asset assessment, and red team operations. The system combines traditional C2 capabilities with specialized satellite tracking, RF analysis, and orbital mechanics computation.
+Spectre C2 is a platform for **authorized satellite security research, orbital asset assessment, and adversary simulation**. It unifies traditional command-and-control workflows with orbital mechanics, RF analysis, and space protocol research in a controlled, auditable environment.
 
-### Key Features
+**Research Status:** Alpha (active development). Interfaces, modules, and internal behavior are subject to change.
 
-- **Offensive Module Engine**: 29 pre-built modules across reconnaissance, exploitation, post-exploitation, and persistence
-- **Satellite Tracking**: Real-time orbital propagation using SGP4/TLE data from CelesTrak and Space-Track
-- **C2 Operations**: WinRM-based agent management with task execution and evidence collection
-- **RF Spectrum Analysis**: Real-time spectrum visualization and signal mimicry
-- **Mission Planning**: Automated pass prediction and link budget calculation
-- **Evidence Management**: Comprehensive artifact collection and reporting
+---
+
+## Core Capabilities
+
+- Modular offensive capability engine for controlled red team simulation
+- Orbital asset intelligence with real-time SGP4 propagation and pass prediction
+- Satellite-aware mission planning aligned to visibility windows and link constraints
+- RF and space protocol analysis tooling (non-transmitting by default)
+- Deterministic C2 tasking with structured evidence capture
+
+---
 
 ## System Architecture
 
-### Backend (FastAPI/Python)
-- **Framework:** FastAPI with async/await support
-- **Database:** SQLite (default) or PostgreSQL for production
-- **Authentication:** JWT-based with role-based access control (RBAC)
-- **Performance:** Connection pooling, in-memory caching, database indexing
-- **Security:** Rate limiting, SQL injection protection, HTTPS enforcement
+### Backend (Python / FastAPI)
+- Asynchronous ASGI runtime
+- JWT authentication with RBAC
+- SQLite (development) or PostgreSQL (production)
+- Rate limiting, input validation, and audit logging
 
-### Frontend (React/TypeScript)
-- **Framework:** React 18 with TypeScript
-- **State Management:** Custom hooks for C2 operations
-- **Build Tool:** Vite for fast development and optimized production builds
-- **UI Library:** Tailwind CSS with custom component library
-- **Real-time Updates:** WebSocket support for live telemetry
-
-### Database Schema
-- **Users & Authentication:** User accounts, roles, audit logs
-- **Satellites:** TLE data, orbital parameters, pass predictions
-- **Missions:** Mission planning, evidence collection, reporting
-- **C2 Operations:** Agents, tasks, listeners, payloads
-- **Security:** Vulnerabilities, exploits, attack chains
-
-## Feature Modules
-
-### Capability Engine (Offensive Modules)
-29 operational modules across 4 categories:
-
-**Reconnaissance (8 modules)**
-- Domain enumeration (AD users, groups, trusts)
-- Network and port scanning
-- Service enumeration
-- BloodHound data collection
-- Process and module enumeration
-- Orbital asset scanning
-
-**Exploitation (6 modules)**
-- EternalBlue (MS17-010)
-- Zerologon (CVE-2020-1472)
-- PrintNightmare (CVE-2021-1675)
-- CCSDS packet injection
-- Kerberoasting
-
-**Post-Exploitation (8 modules)**
-- Credential harvesting (LSASS, SAM, DCSync)
-- Lateral movement (PsExec, WMI)
-- Token manipulation
-- SMB data exfiltration
-- Orbital relay initialization
-
-**Persistence (7 modules)**
-- Scheduled tasks
-- Registry run keys
-- Windows services
-- WMI event subscriptions
-- Golden ticket generation
-- Satellite AOS triggers
-- Ground station mimicry
-
-### Satellite Operations
-
-**Orbital Tracking**
-- Real-time SGP4 propagation engine
-- TLE data from CelesTrak and Space-Track
-- Position, velocity, and look angle computation
-- Doppler shift calculation
-
-**Mission Planning**
-- Pass prediction for satellite visibility windows
-- Link budget calculation for RF operations
-- Mission timeline visualization
-- Evidence collection and reporting
-
-**RF Analysis**
-- Spectrum visualization
-- Signal profile generation
-- Protocol analysis (CCSDS, AX.25, DVB-S2)
-- Ground station mimicry
-
-### C2 Operations
-
-**Agent Management**
-- WinRM-based agent connectivity
-- Task execution and response handling
-- File upload/download
-- Interactive shell sessions
-
-**Payload Generation**
-- Msfvenom integration
-- Custom payload templates
-- Obfuscation and encoding
-- Multi-stage delivery
-
-**Evidence & Reporting**
-- Artifact collection and categorization
-- Screenshot capture
-- Credential harvesting logs
-- Automated report generation
+### Frontend (React / TypeScript)
+- React 18 with Vite build pipeline
+- Typed state hooks for C2, mission, and telemetry state
+- WebSocket-based real-time updates
 
 ---
 
-## Installation and Setup
+## Installation & Setup
 
 ### Prerequisites
 
@@ -128,15 +61,17 @@ Spectre C2 is a full-stack command and control platform designed for satellite s
 - Python 3.10+ ([Download](https://www.python.org/downloads/))
 - Git
 
+---
+
 ### Quick Start
 
-**1. Clone Repository**
+#### 1. Clone Repository
 ```bash
 git clone <repository-url>
 cd spectre-c2
 ```
 
-**2. Backend Setup**
+#### 2. Backend Setup
 ```bash
 cd backend
 python -m venv venv
@@ -150,7 +85,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**3. Initialize Database**
+#### 3. Initialize Database
 ```bash
 # Create database schema
 python init_db.py
@@ -162,43 +97,45 @@ python create_test_admin.py
 python add_indexes.py
 ```
 
-**4. Frontend Setup**
+#### 4. Frontend Setup
 ```bash
 cd ..
 npm install
 npm run build
 ```
 
-**5. Start Services**
+#### 5. Start Services
 
-**Terminal 1 - Backend:**
+**Terminal 1 – Backend**
 ```bash
 cd backend
 venv\Scripts\activate  # or source venv/bin/activate on Linux/macOS
 uvicorn backend:app --reload --port 8000
 ```
 
-**Terminal 2 - Frontend:**
+**Terminal 2 – Frontend**
 ```bash
 npm run dev
 ```
 
-**6. Access Application**
-- Frontend: `http://localhost:3000`
-- Backend API: `http://localhost:8000`
-- API Documentation: `http://localhost:8000/docs`
+#### 6. Access Application
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
 
-**7. Login**
+#### 7. Login
 ```
 Username: admin
 Password: admin123
 ```
 
-**IMPORTANT:** Change default credentials immediately in production environments.
+**IMPORTANT:** Change default credentials immediately in production or shared environments.
 
-### Environment Configuration
+---
 
-Create `.env` file in `backend/` directory:
+## Environment Configuration
+
+Create a `.env` file in the `backend/` directory:
 
 ```bash
 # Database (optional - defaults to SQLite)
@@ -220,118 +157,65 @@ DATABASE_POOL_SIZE=20
 DATABASE_MAX_OVERFLOW=40
 ```
 
+---
+
+## API Documentation
+
+The backend exposes a fully documented REST API.
+
+- OpenAPI / Swagger UI: http://localhost:8000/docs
+- Health Check: http://localhost:8000/health
+- Detailed Health: http://localhost:8000/health/detailed
+
+
+---
+
 ## Usage Guide
 
 ### Initial Login
-1. Navigate to `http://localhost:3000`
-2. Enter credentials: `admin` / `admin123`
-3. System will authenticate and load operator session
+1. Navigate to http://localhost:3000
+2. Enter credentials: `admin` / `admin123`  initial setup creds
+3. System authenticates and loads the operator session
 
 ### Running Offensive Modules
-1. Navigate to **Offensive > Modules** tab
-2. Filter by category (All, Recon, Exploitation, Post-Ex, Persistence)
-3. Click module command button to insert into terminal
-4. Commands are executed against active C2 agent
+1. Navigate to **Offensive > Modules**
+2. Filter by category (Recon, Exploitation, Post-Ex, Persistence)
+3. Insert module commands into the terminal
+4. Execute against the active C2 agent within scope
 
 ### Satellite Tracking
-1. Navigate to **Intel > Orbital** tab
-2. System loads satellites from database
-3. Click satellite for detailed view
+1. Navigate to **Intel > Orbital**
+2. Load satellites from the database
+3. Select a satellite for detailed telemetry
 4. Use **Satellite > Timeline** for pass predictions
 
 ### Mission Planning
-1. Navigate to **Satellite > Missions** tab
-2. Click **New Mission** button
+1. Navigate to **Satellite > Missions**
+2. Create a new mission
 3. Select target satellite and objectives
-4. System calculates optimal execution windows
+4. Review calculated execution windows
 
 ### Evidence Collection
-1. Navigate to **Intel > Vault** tab
-2. All mission artifacts automatically collected
-3. Filter by category (credentials, screenshots, files)
+1. Navigate to **Intel > Vault**
+2. Review automatically collected artifacts
+3. Filter by credentials, screenshots, or files
 4. Export evidence for reporting
 
-### Testing Backend
-Run comprehensive test suite:
-```bash
-cd backend
-python run_all_tests.py
-```
+---
 
-Test individual components:
-```bash
-# Authentication endpoints
-python test_auth_endpoints.py
 
-# Module execution
-python test_module_executor.py
 
-# Satellite operations
-python test_backend_services.py
-```
+## Legal & Ethical Use
 
-## Performance Optimization
+This platform is intended solely for authorized security research, adversary simulation, and educational use. Unauthorized access, RF transmission, or interference with operational satellite systems is prohibited.
 
-The system includes production-grade performance features:
-
-**Database Optimization**
-- Connection pooling (20 base connections, 40 overflow)
-- 25+ indexes on frequently queried columns
-- Query result caching with TTL
-
-**Caching Layer**
-- In-memory cache for satellites, modules, templates
-- Configurable TTL (default 300 seconds)
-- Automatic cache invalidation
-
-**Concurrent Request Handling**
-- Supports 60+ simultaneous connections
-- Async/await throughout backend
-- Non-blocking database operations
-
-## Security Considerations
-
-**Production Deployment Checklist**
-1. Change default admin password
-2. Set strong JWT_SECRET_KEY (32+ characters)
-3. Enable HTTPS with valid SSL certificates
-4. Configure firewall rules (ports 8000, 3000)
-5. Use PostgreSQL instead of SQLite
-6. Enable rate limiting and request validation
-7. Review CORS origins in backend config
-8. Implement IP whitelisting if needed
-9. Regular security audits and updates
-10. Monitor audit logs for suspicious activity
-
-## Legal and Ethical Use
-
-**IMPORTANT:** This system is designed for authorized security research and red team operations only.
-
-**Requirements for Legal Use:**
-- Written authorization from asset owners
-- Defined scope of engagement
-- Compliance with local laws and regulations
-- Proper documentation and reporting
-- No unauthorized RF transmissions
-
-**Prohibited Activities:**
-- Unauthorized access to computer systems
-- Interference with satellite operations
-- Unlicensed RF transmission
-- Data theft or destruction
-- Any activity violating applicable laws
-
-**User Responsibility:**
-Operators are solely responsible for ensuring all activities comply with applicable laws, regulations, and authorizations. The developers assume no liability for misuse of this software.
+---
 
 ## License
 
-This software is provided for authorized security research and educational purposes only. Commercial use, redistribution, or deployment without proper authorization is prohibited.
+Research only usage. Commercial deployment or redistribution without explicit authorization is prohibited.
 
-## Support and Documentation
-
-- API Documentation: `http://localhost:8000/docs`
-- Health Check: `http://localhost:8000/health`
-- Detailed Health: `http://localhost:8000/health/detailed`
-
-For issues, feature requests, or security concerns, contact the development team through official channels.
+<!--
+satellite red team framework, space security testing, orbital cyber operations research,
+space C2 research platform, CCSDS penetration testing, orbital threat assessment framework
+-->
