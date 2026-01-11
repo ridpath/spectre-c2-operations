@@ -127,6 +127,7 @@ backend/populate_*.py
 backend/check_*.py
 backend/create_test_*.py
 backend/init_db_*.py
+backend/clear_*.py
 backend/spectre.db
 backend/storage/
 backend/iq_recordings/
@@ -136,3 +137,8 @@ backend/reports/
 # Logs and shell history
 *.log*
 shell-logs/
+
+# Documentation and temporary markdown
+CLEAR_AUTH.md
+TODO.md
+NOTES.md
