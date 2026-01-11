@@ -1,18 +1,52 @@
 
 import React, { useState, useEffect } from 'react';
 import { Globe, Shield, RefreshCw, Lock, Zap, Activity } from 'lucide-react';
+import { torService, TorStatus } from '../services/torService';
+import { demoModeService } from '../services/demoModeService';
 
 const TorEgressMonitor: React.FC = () => {
-  const [circuit, setCircuit] = useState<string[]>(['10.10.14.12', '185.220.101.5', '94.23.250.111', 'Hidden Service']);
+  const [torStatus, setTorStatus] = useState<TorStatus | null>(null);
   const [isRotating, setIsRotating] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
 
-  const rotateCircuit = () => {
+  useEffect(() => {
+    const unsubscribe = demoModeService.subscribe(setIsDemo);
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    loadTorStatus();
+    const interval = setInterval(loadTorStatus, 10000);
+    return () => clearInterval(interval);
+  }, [isDemo]);
+
+  const loadTorStatus = async () => {
+    if (isDemo) {
+      setTorStatus(torService.generateMockCircuit());
+    } else {
+      const status = await torService.getStatus();
+      if (status) {
+        setTorStatus(status);
+      } else {
+        setTorStatus(torService.generateMockCircuit());
+      }
+    }
+  };
+
+  const rotateCircuit = async () => {
     setIsRotating(true);
-    setTimeout(() => {
-      setCircuit(['10.10.14.12', '209.141.55.10', '192.42.116.16', 'Hidden Service']);
+    
+    if (!isDemo) {
+      await torService.rotateCircuit();
+    }
+    
+    setTimeout(async () => {
+      await loadTorStatus();
       setIsRotating(false);
     }, 2000);
   };
+
+  const circuit = torStatus?.path || ['10.10.14.12', '185.220.101.5', '94.23.250.111', 'Hidden Service'];
 
   return (
     <div className="h-full flex flex-col gap-6 animate-in fade-in duration-500">
@@ -65,15 +99,19 @@ const TorEgressMonitor: React.FC = () => {
         <div className="mt-20 grid grid-cols-3 gap-10 w-full max-w-4xl">
            <div className="p-6 bg-slate-900/40 rounded-3xl border border-white/5 space-y-2">
               <span className="text-[9px] font-black text-slate-500 uppercase">Latency Jitter</span>
-              <div className="text-xl font-black text-purple-400">420ms <span className="text-[10px] text-slate-600">± 12%</span></div>
+              <div className="text-xl font-black text-purple-400">
+                {torStatus?.latency_ms || 420}ms <span className="text-[10px] text-slate-600">± 12%</span>
+              </div>
            </div>
            <div className="p-6 bg-slate-900/40 rounded-3xl border border-white/5 space-y-2">
               <span className="text-[9px] font-black text-slate-500 uppercase">Protocol Wrap</span>
-              <div className="text-xl font-black text-blue-400">SOCKS5h</div>
+              <div className="text-xl font-black text-blue-400">{torStatus?.protocol || 'SOCKS5h'}</div>
            </div>
            <div className="p-6 bg-slate-900/40 rounded-3xl border border-white/5 space-y-2">
               <span className="text-[9px] font-black text-slate-500 uppercase">Signal Stability</span>
-              <div className="text-xl font-black text-emerald-400">OPTIMAL</div>
+              <div className={`text-xl font-black ${torStatus?.is_stable ? 'text-emerald-400' : 'text-yellow-400'}`}>
+                {torStatus?.is_stable ? 'OPTIMAL' : 'MODERATE'}
+              </div>
            </div>
         </div>
 

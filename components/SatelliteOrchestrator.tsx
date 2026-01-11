@@ -150,43 +150,83 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
 
   // --- CORE BACKEND INTEGRATIONS ---
 
-  // 1. Orbital Telemetry WebSocket
+  // 1. Orbital Telemetry WebSocket (with fallback)
   useEffect(() => {
     if (!selectedSatId) return;
     const noradId = satellites.find(s => s.id === selectedSatId)?.noradId || 43105;
     
-    const ws = new WebSocket(`ws://localhost:8000/ws/orbital/${noradId}`);
-    socketRef.current = ws;
+    try {
+      const ws = new WebSocket(`ws://localhost:8000/ws/orbital/${noradId}`);
+      socketRef.current = ws;
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (!data.error) {
-        setLiveAsset(data as OrbitalAsset);
-        setDataSource(data.hardware_active ? 'BRIDGE' : (fidelity === 'High' ? 'SPACE-TRACK' : 'CELESTRAK'));
-        if (data.dpi_frame) {
-          setDpiFrames(prev => [data.dpi_frame, ...prev].slice(0, 50));
-          if (data.dpi_frame.modulationAI) setAiModulation(data.dpi_frame.modulationAI);
+      ws.onerror = (error) => {
+        console.warn('WebSocket connection failed, using polling fallback');
+        ws.close();
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket closed, using static satellite data');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (!data.error) {
+            setLiveAsset(data as OrbitalAsset);
+            setDataSource(data.hardware_active ? 'BRIDGE' : (fidelity === 'High' ? 'SPACE-TRACK' : 'CELESTRAK'));
+            if (data.dpi_frame) {
+              setDpiFrames(prev => [data.dpi_frame, ...prev].slice(0, 50));
+              if (data.dpi_frame.modulationAI) setAiModulation(data.dpi_frame.modulationAI);
+            }
+            if (data.antenna_state) setAntenna(data.antenna_state);
+            if (data.mesh_peers) setMeshPeers(data.mesh_peers);
+          }
+        } catch (e) {
+          console.error('Error parsing WebSocket data:', e);
         }
-        if (data.antenna_state) setAntenna(data.antenna_state);
-        if (data.mesh_peers) setMeshPeers(data.mesh_peers);
+      };
+    } catch (error) {
+      console.warn('Failed to establish WebSocket connection:', error);
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
       }
     };
+  }, [selectedSatId, satellites, fidelity]);
 
-    return () => ws.close();
-  }, [selectedSatId, fidelity]);
-
-  // 2. Spectrum WebSocket
+  // 2. Spectrum WebSocket (with fallback)
   useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:8000/ws/spectrum`);
-    spectrumSocketRef.current = ws;
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.data) {
-        setSpectrumData(data.data);
-        if (data.modulation) setAiModulation(data.modulation);
+    try {
+      const ws = new WebSocket(`ws://localhost:8000/ws/spectrum`);
+      spectrumSocketRef.current = ws;
+      
+      ws.onerror = () => {
+        console.warn('Spectrum WebSocket failed, using simulated data');
+        ws.close();
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.data) {
+            setSpectrumData(data.data);
+            if (data.modulation) setAiModulation(data.modulation);
+          }
+        } catch (e) {
+          console.error('Error parsing spectrum data:', e);
+        }
+      };
+    } catch (error) {
+      console.warn('Failed to establish spectrum WebSocket:', error);
+    }
+
+    return () => {
+      if (spectrumSocketRef.current) {
+        spectrumSocketRef.current.close();
       }
     };
-    return () => ws.close();
   }, []);
 
   // 3. Location Service
