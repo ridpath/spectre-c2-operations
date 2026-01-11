@@ -1037,6 +1037,7 @@ async def list_satellites(
     limit: int = 100,
     satellite_type: Optional[str] = None,
     constellation: Optional[str] = None,
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """List satellites from database (public endpoint)"""

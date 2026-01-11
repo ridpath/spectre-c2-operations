@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { APT_TACTICAL_CHAINS } from '../constants';
+import { APT_ATTACK_CHAINS } from '../constants';
 import { APTChain, TacticalStep } from '../types';
 import { Target, Play, ShieldAlert, Cpu, Layers, Zap, Clock, TrendingUp, AlertTriangle } from 'lucide-react';
 
@@ -12,7 +12,7 @@ const APTOrchestrator: React.FC<APTOrchestratorProps> = ({ onExecuteChain }) => 
   const [activeChainId, setActiveChainId] = useState<string | null>(null);
   const [executingStep, setExecutingStep] = useState<string | null>(null);
 
-  const selectedChain = APT_TACTICAL_CHAINS.find(c => c.id === activeChainId);
+  const selectedChain = APT_ATTACK_CHAINS.find(c => c.id === activeChainId);
 
   const handleRun = (chain: APTChain) => {
     setActiveChainId(chain.id);
@@ -33,7 +33,7 @@ const APTOrchestrator: React.FC<APTOrchestratorProps> = ({ onExecuteChain }) => 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1 overflow-hidden">
         {/* Chain Selector */}
         <div className="lg:col-span-4 space-y-4 overflow-y-auto pr-2">
-          {APT_TACTICAL_CHAINS.map(chain => (
+          {APT_ATTACK_CHAINS.map(chain => (
             <button
               key={chain.id}
               onClick={() => setActiveChainId(chain.id)}

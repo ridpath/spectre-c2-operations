@@ -216,7 +216,7 @@ const Terminal = forwardRef<TerminalHandle, TerminalProps>(({ connection, onComm
               * Initializing WinRM Secure Transport over SOCKS5h...<br/>
               * Validating NTLM/Kerberos session tokens...<br/>
               * Signal Core ready for transmission.<br/><br/>
-              Type 'help' for tactical command reference.
+              Type 'help' for command reference.
             </div>
           </div>
         )}

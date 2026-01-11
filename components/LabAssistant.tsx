@@ -76,7 +76,7 @@ const LabAssistant: React.FC<LabAssistantProps> = ({ onInsertCode }) => {
           <div className="space-y-4">
             <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 mb-4">
               <p className="text-[10px] text-emerald-200 leading-relaxed italic">
-                "Spectre Intelligence analyzes the operational state to provide tactical guidance and automated reconnaissance paths."
+                "Spectre Intelligence analyzes the operational state to provide strategic guidance and automated reconnaissance paths."
               </p>
             </div>
             
@@ -86,7 +86,7 @@ const LabAssistant: React.FC<LabAssistantProps> = ({ onInsertCode }) => {
               className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black shadow-lg transition-all flex items-center justify-center gap-2"
             >
               {isLoading ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <Sparkles size={14} />}
-              {isLoading ? 'ANALYZING...' : 'GET TACTICAL INTEL'}
+              {isLoading ? 'ANALYZING...' : 'GET INTELLIGENCE'}
             </button>
 
             {aiSuggestions && (

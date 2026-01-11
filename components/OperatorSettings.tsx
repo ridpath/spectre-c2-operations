@@ -32,7 +32,7 @@ const OperatorSettings: React.FC<OperatorSettingsProps> = ({ operators, config, 
                <div className="flex items-center justify-between p-4 bg-black/40 rounded-2xl border border-white/5">
                   <div>
                     <div className="text-[10px] font-black text-slate-200 uppercase tracking-tight">Operator Authentication</div>
-                    <div className="text-[8px] text-slate-600 mt-0.5">Force tactical login for all operators</div>
+                    <div className="text-[8px] text-slate-600 mt-0.5">Force secure login for all operators</div>
                   </div>
                   <button 
                     onClick={() => onUpdateConfig({ isAuthEnabled: !config.isAuthEnabled })}

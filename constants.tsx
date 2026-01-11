@@ -59,7 +59,7 @@ export const ORBITAL_ASSETS: OrbitalAsset[] = [
   }
 ];
 
-export const APT_TACTICAL_CHAINS: APTChain[] = [
+export const APT_ATTACK_CHAINS: APTChain[] = [
   {
     id: 'chain-shadow-mesh',
     name: 'Distributed Signal Proxy Mesh',
@@ -120,13 +120,49 @@ export const OFFENSIVE_REGISTRY: OffensiveModule[] = [
 
 export const DROPPER_TEMPLATES: DropperTemplate[] = [
   {
-    id: 'stager-orbital-aos',
-    name: 'AOS-Locked Dead-Drop',
-    format: 'shellcode',
-    template: '0xDE, 0xAD, 0xBE, 0xEF...',
-    description: 'A stager that remains dormant until Acquisition of Signal (AOS) from a specified NORAD target.',
-    evasionLevel: 'Strategic',
+    id: 'powershell_reverse_tcp',
+    name: 'PowerShell Reverse TCP',
+    format: 'powershell',
+    template: 'windows/x64/meterpreter/reverse_tcp',
+    description: 'Staged PowerShell reverse TCP connection',
+    evasionLevel: 'Moderate',
     targetOS: 'Windows'
+  },
+  {
+    id: 'shellcode_x64',
+    name: 'Raw Shellcode x64',
+    format: 'c',
+    template: 'windows/x64/meterpreter/reverse_https',
+    description: 'Position-independent shellcode for injection',
+    evasionLevel: 'High',
+    targetOS: 'Windows'
+  },
+  {
+    id: 'dll_injection',
+    name: 'DLL Reflective Loader',
+    format: 'dll',
+    template: 'windows/x64/meterpreter/reverse_tcp',
+    description: 'Reflective DLL injection payload',
+    evasionLevel: 'Moderate',
+    targetOS: 'Windows'
+  },
+  {
+    id: 'exe_stageless',
+    name: 'Stageless EXE',
+    format: 'exe',
+    template: 'windows/x64/meterpreter_reverse_tcp',
+    description: 'Standalone executable with embedded payload',
+    evasionLevel: 'Low',
+    targetOS: 'Windows'
+  },
+  {
+    id: 'python_stager',
+    name: 'Python Stager',
+    format: 'python',
+    template: 'python/meterpreter/reverse_tcp',
+    description: 'Python-based multi-platform stager',
+    evasionLevel: 'Moderate',
+    targetOS: 'Multi-Platform'
   }
 ];
 

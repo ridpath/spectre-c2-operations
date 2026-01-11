@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DROPPER_TEMPLATES } from '../constants';
 import { DropperTemplate, QuantumForgeConfig, PayloadFormat } from '../types';
 import { 
@@ -29,6 +29,7 @@ import {
   Fingerprint
 } from 'lucide-react';
 import { generateDropper } from '../services/geminiService';
+import { payloadService } from '../services/payloadService';
 
 interface PayloadFactoryProps {
   onInsertCode: (code: string) => void;
@@ -44,6 +45,8 @@ const PayloadFactory: React.FC<PayloadFactoryProps> = ({ onInsertCode }) => {
   const [customArtifact, setCustomArtifact] = useState('');
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState<PayloadFormat>('shellcode');
+  const [backendTemplates, setBackendTemplates] = useState<any[]>([]);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   
   const [forgeConfig, setForgeConfig] = useState<QuantumForgeConfig & { sleepMasking: boolean; ppidSpoofing: boolean; blockDlls: boolean; heaplessExecution: boolean }>({
     obfuscation: 'quantum-random',
@@ -59,6 +62,21 @@ const PayloadFactory: React.FC<PayloadFactoryProps> = ({ onInsertCode }) => {
     heaplessExecution: true,
     vectorChannel: 'multiplexed'
   });
+
+  useEffect(() => {
+    const loadTemplates = async () => {
+      setIsLoadingTemplates(true);
+      try {
+        const data = await payloadService.getTemplates();
+        setBackendTemplates(data.templates || []);
+      } catch (error) {
+        console.error('Failed to load payload templates:', error);
+      } finally {
+        setIsLoadingTemplates(false);
+      }
+    };
+    loadTemplates();
+  }, []);
 
   const handleSynthesize = async () => {
     setIsSynthesizing(true);
@@ -104,7 +122,7 @@ const PayloadFactory: React.FC<PayloadFactoryProps> = ({ onInsertCode }) => {
             
             <div className="flex items-center justify-between">
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                <Settings2 size={14} className="text-blue-500" /> Tactical Parameters
+                <Settings2 size={14} className="text-blue-500" /> Configuration
               </h3>
               <div className="flex bg-black/60 p-1 rounded-lg border border-white/5">
                 <button onClick={() => setArch('x64')} className={`px-3 py-1 text-[9px] font-black rounded ${arch === 'x64' ? 'bg-emerald-600 text-white' : 'text-slate-500'}`}>x64</button>

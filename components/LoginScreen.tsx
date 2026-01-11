@@ -15,7 +15,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     e.preventDefault();
     if (!alias) return;
     setIsVerifying(true);
-    // Simulate tactical handshake
+    // Simulate authentication handshake
     setTimeout(() => {
       onLogin(alias);
       setIsVerifying(false);
