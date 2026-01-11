@@ -1,0 +1,82 @@
+================================================================================
+SPECTRE C2 - LOCAL TESTING GUIDE
+================================================================================
+
+QUICK START:
+------------
+1. Double-click: START_SERVERS.bat
+2. Wait for both servers to start (about 10-15 seconds)
+3. Open browser: http://localhost:3000
+4. Login with:
+   Username: admin
+   Password: admin123
+
+SERVERS:
+--------
+- Frontend: http://localhost:3000
+- Backend:  http://localhost:8000
+- API Docs: http://localhost:8000/docs
+
+DATABASE:
+---------
+- Type: SQLite
+- Location: backend/spectre_c2.db
+- Reset: Delete spectre_c2.db and run: python backend/init_db_simple.py
+
+ADMIN USER:
+-----------
+- Username: admin
+- Password: admin123
+- Email: admin@spectre.local
+- Role: ADMIN
+
+MANUAL START (if START_SERVERS.bat doesn't work):
+--------------------------------------------------
+Terminal 1 - Backend:
+  cd backend
+  python -m uvicorn backend:app --reload
+
+Terminal 2 - Frontend:
+  npm run dev
+
+TROUBLESHOOTING:
+----------------
+1. Backend won't start:
+   - Check if port 8000 is in use: netstat -ano | findstr :8000
+   - Install dependencies: cd backend && pip install -r requirements.txt
+
+2. Frontend won't start:
+   - Check if port 3000 is in use: netstat -ano | findstr :3000
+   - Install dependencies: npm install
+
+3. Login fails:
+   - Recreate admin user: cd backend && python create_test_admin.py
+   - Check backend logs for authentication errors
+
+4. Database errors:
+   - Reset database: del backend\spectre_c2.db
+   - Reinitialize: cd backend && python init_db_simple.py
+   - Recreate admin: cd backend && python create_test_admin.py
+
+FEATURES TO TEST:
+-----------------
+- User authentication (login/registration)
+- Mission creation and management
+- Satellite target selection
+- Pass prediction calculations
+- Evidence file upload
+- IQ recording upload
+- Vulnerability scanning
+- Playbook execution
+- Report generation
+- Real-time spectrum display
+- Antenna control (if hardware available)
+
+NOTES:
+------
+- This is a DEVELOPMENT setup using SQLite
+- For production, use PostgreSQL with Docker
+- SDR hardware features disabled by default (set ENABLE_SDR_HARDWARE=true in .env)
+- All data stored in backend/spectre_c2.db
+
+================================================================================
