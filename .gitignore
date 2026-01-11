@@ -22,3 +22,66 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Security & Secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+*.keystore
+api_keys.json
+credentials.json
+secrets.json
+config.local.json
+
+# Backend artifacts (if backend runs in same repo)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.db
+*.sqlite
+*.sqlite3
+
+# RF/SDR recordings and sensitive data
+*.iq
+*.sigmf-data
+*.sigmf-meta
+recordings/
+iq_captures/
+replay_buffers/
+
+# Firmware binaries and analysis results
+firmware/
+*.bin
+*.hex
+*.elf
+*.img
+firmware_analysis/
+
+# Satellite TLE data cache (can contain sensitive targets)
+tle_cache/
+*.tle
+
+# Exploitation artifacts
+exploits_local/
+payloads_generated/
+loot/
+evidence/
+
+# Test coverage and reports
+coverage/
+.nyc_output
+*.lcov
+htmlcov/
+.pytest_cache/
+
+# Operating System
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -18,6 +18,10 @@ import APTOrchestrator from './components/APTOrchestrator';
 import PivotOrchestrator from './components/PivotOrchestrator';
 import VulnerabilityValidator from './components/VulnerabilityValidator';
 import SatelliteOrchestrator from './components/SatelliteOrchestrator';
+import FirmwareStudio from './components/FirmwareStudio';
+import CryptanalysisLab from './components/CryptanalysisLab';
+import SatelliteExploitOrchestrator from './components/SatelliteExploitOrchestrator';
+import LinkBudgetCalculator from './components/LinkBudgetCalculator';
 
 import { useC2 } from './hooks/useC2';
 import { executeCommand, ShellContext } from './services/commandService';
@@ -40,10 +44,13 @@ import {
   Activity,
   Satellite,
   Link as LinkIcon,
-  Unplug
+  Unplug,
+  FileCode,
+  Lock,
+  Calculator
 } from 'lucide-react';
 
-type ViewID = 'topology' | 'shell' | 'apt' | 'vuln' | 'pivot' | 'capabilities' | 'factory' | 'loot' | 'egress' | 'spectrum' | 'autonomous' | 'sigint' | 'satellite' | 'team';
+type ViewID = 'topology' | 'shell' | 'apt' | 'vuln' | 'pivot' | 'capabilities' | 'factory' | 'loot' | 'egress' | 'spectrum' | 'autonomous' | 'sigint' | 'satellite' | 'team' | 'firmware' | 'crypto' | 'exploit' | 'linkbudget';
 
 const App: React.FC = () => {
   const c2 = useC2();
@@ -120,6 +127,15 @@ const App: React.FC = () => {
         { id: 'sigint', icon: <Activity size={14} />, label: 'SIGINT' },
         { id: 'autonomous', icon: <Ghost size={14} />, label: 'Overlord' },
         { id: 'team', icon: <Settings size={14} />, label: 'Control' }
+      ]
+    },
+    {
+      name: 'SatEx',
+      items: [
+        { id: 'exploit', icon: <Target size={14} />, label: 'Exploit' },
+        { id: 'firmware', icon: <FileCode size={14} />, label: 'Firmware' },
+        { id: 'crypto', icon: <Lock size={14} />, label: 'Crypto' },
+        { id: 'linkbudget', icon: <Calculator size={14} />, label: 'Link' }
       ]
     }
   ];
@@ -218,6 +234,10 @@ const App: React.FC = () => {
             {activeView === 'sigint' && <OpSecMonitor connections={c2.connections} />}
             {activeView === 'satellite' && <SatelliteOrchestrator />}
             {activeView === 'team' && <OperatorSettings operators={c2.operators} config={c2.securityConfig} onUpdateConfig={(updates) => c2.setSecurityConfig(prev => ({ ...prev, ...updates }))} onRemoveOperator={() => {}} />}
+            {activeView === 'exploit' && <SatelliteExploitOrchestrator />}
+            {activeView === 'firmware' && <FirmwareStudio />}
+            {activeView === 'crypto' && <CryptanalysisLab />}
+            {activeView === 'linkbudget' && <LinkBudgetCalculator />}
           </div>
         </main>
       </div>

@@ -1,20 +1,20 @@
 # Spectre C2 Operations Center
 
 **Operational Designation:** Sovereign-Grade Engagement and Orbital SIGINT Framework  
-**Version:** 4.6.0-LAB-PROD  
-**Research Tier:** Aerospace-Grade Post-Exploitation and Signal Deception  
+**Version:** 5.0.0-TACTICAL-ELITE  
+**Research Tier:** World-Class Satellite Exploitation & Aerospace Security Testing  
 **Lead Architect:** Principal Security Research Division  
 
-![Status: Stable](https://img.shields.io/badge/status-stable-brightgreen)
+![Status: Enhanced](https://img.shields.io/badge/status-enhanced-brightgreen)
 ![Domain: Astro-Sec](https://img.shields.io/badge/domain-astro--sec-blue)
-![Protocols: WinRM | CCSDS | DVB--S2](https://img.shields.io/badge/protocols-WinRM%20%7C%20CCSDS%20%7C%20DVB--S2-purple)
+![Protocols: WinRM | CCSDS | DVB--S2 | AX.25 | LRPT](https://img.shields.io/badge/protocols-WinRM%20%7C%20CCSDS%20%7C%20DVB--S2%20%7C%20AX.25-purple)
 ![Architecture: Tactical Bridge](https://img.shields.io/badge/architecture-tactical--bridge-orange)
 ![Signal: Spectral Mimicry](https://img.shields.io/badge/signal-spectral--mimicry-lightgrey)
 ![License: Research Only](https://img.shields.io/badge/license-research--only-red)
 
 ---
 
-Spectre C2 is an orbital-grade post-exploitation orchestration platform engineered for cyber-physical testing in aerospace environments, advanced WinRM operations, and signal-layer deception research. This version features live Tactical Bridge telemetry, high-fidelity Space-Track integration, and hardware-abstracted RF injection.
+Spectre C2 is a world-class orbital-grade penetration testing platform engineered for comprehensive satellite security assessment, advanced WinRM operations, and sophisticated RF exploitation. Version 5.0.0-TACTICAL-ELITE introduces professional-grade satellite exploit orchestration, firmware analysis, cryptanalysis capabilities, and precision RF signal planning tools.
 
 ---
 
@@ -27,14 +27,45 @@ Centralized visualization of the engagement mesh. This module utilizes WebSocket
 Comprehensive satellite engagement suite with real-time propagation:
 - **Orbital Tracking:** Live position updates via WebSocket stream (1Hz) driven by Skyfield SGP4 propagation.
 - **Hi-Fi Data Sources:** Support for high-fidelity TLE data via Space-Track API (Session-Auth) and standard catalog syncing via CelesTrak.
-- **CCSDS Forge:** Packet assembly supporting CRC-16-CCITT integrity checks and bit-level manipulation for Telecommand (TC) injection.
+- **Multi-Protocol Support:** CCSDS, DVB-S2, AX.25, LRPT protocol engines with packet forging capabilities.
 - **Hardware Integration:** Direct uplink/downlink hooks for RTL-SDR, HackRF, and USRP X410 devices.
 - **Subsystem Telemetry:** Live monitoring of EPS, AOCS, and Thermal hardware states with automated spoofing detection.
 
-### 3. Artifact Foundry (QuantumForge)
+### 3. Satellite Exploit Orchestrator **[NEW]**
+Automated attack chain execution framework for satellite penetration testing:
+- **Pre-Built Exploit Chains:** CubeSat takeover, weather satellite hijack, commercial satellite denial, amateur beacon spoofing
+- **Real-Time Execution Monitoring:** Step-by-step attack progress with detailed logging
+- **Risk Assessment:** OpSec risk ratings and success probability indicators
+- **Legal Compliance Warnings:** Automatic alerts for high-risk operations
+
+### 4. Firmware Analysis Studio **[NEW]**
+Comprehensive satellite firmware reverse engineering and vulnerability detection:
+- **Hex Editor:** Monaco-powered hex viewer for binary inspection
+- **Architecture Detection:** ARM, AVR, SPARC, MIPS, x86, PowerPC support
+- **Vulnerability Scanning:** Automated detection of hardcoded credentials, buffer overflows, weak crypto
+- **Disassembly:** Built-in disassembler for firmware analysis
+- **String Extraction:** Automatic extraction of sensitive strings and crypto keys
+
+### 5. Cryptanalysis Laboratory **[NEW]**
+Advanced satellite encryption breaking and key recovery:
+- **Known-Plaintext Attacks:** Exploit predictable telemetry patterns (NORAD ID, TLE epoch)
+- **Side-Channel Timing Attacks:** Measure command processing latency to extract keys
+- **GPU-Accelerated Brute Force:** CUDA/OpenCL support for parallel key search
+- **Differential Cryptanalysis:** Analyze ciphertext pairs for implementation weaknesses
+- **Success Tracking:** Historical attack success rates and recovered key database
+
+### 6. Link Budget Calculator **[NEW]**
+Precision RF signal planning for satellite operations:
+- **FSPL Calculation:** Accurate free space path loss computation
+- **Atmospheric Loss Modeling:** Weather and rain attenuation factors
+- **SNR Analysis:** Signal-to-noise ratio prediction with link margin calculation
+- **Quick Presets:** LEO UHF, S-Band, X-Band configuration templates
+- **Viability Assessment:** Automatic link feasibility determination with recommendations
+
+### 7. Artifact Foundry (QuantumForge)
 High-stealth payload synthesis engine. Architects heapless stagers with modular evasion parameters including Indirect Syscalls, Sleep Masking, PPID Spoofing, and ETW/AMSI patching.
 
-### 4. Spectrum Studio (Signal Mimicry)
+### 8. Spectrum Studio (Signal Mimicry)
 Real-time RF waterfall display and traffic shaping engine. Visualizes live SDR input or synthetic signal profiles to facilitate behavioral signal orchestration and protocol-level mimicry.
 
 ---

@@ -299,3 +299,188 @@ export interface C2Profile {
   sleep: number;
   allocator: string;
 }
+
+export type ProtocolType = 'CCSDS' | 'DVB-S2' | 'AX.25' | 'LRPT' | 'APT' | 'SSTV';
+export type ExploitChainType = 'cubesat_takeover' | 'weather_sat_hijack' | 'comsat_denial' | 'amateur_sat_beacon_spoof' | 'military_sat_recon';
+export type CryptoAttackType = 'known-plaintext' | 'timing' | 'brute-force' | 'differential' | 'side-channel';
+export type FirmwareArch = 'ARM' | 'AVR' | 'SPARC' | 'MIPS' | 'x86' | 'PowerPC';
+
+export interface ProtocolEngine {
+  id: string;
+  name: string;
+  protocols: string[];
+  capabilities: string[];
+  supported: boolean;
+}
+
+export interface ExploitChain {
+  id: string;
+  name: string;
+  target_type: 'cubesat' | 'weather' | 'comsat' | 'military' | 'amateur';
+  steps: ExploitStep[];
+  opsec_risk: 'low' | 'medium' | 'high' | 'extreme';
+  estimated_duration: number;
+  success_rate: number;
+  legal_warning?: string;
+}
+
+export interface ExploitStep {
+  action: string;
+  duration?: number;
+  power?: string;
+  payload?: string;
+}
+
+export interface SatelliteCVE {
+  id: string;
+  cve_id: string;
+  name: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  affected_models: string[];
+  affected_protocols?: string[];
+  exploit_available: boolean;
+  exploit_module?: string;
+}
+
+export interface FirmwareAnalysis {
+  id: string;
+  filename: string;
+  hash: string;
+  size: number;
+  architecture?: FirmwareArch;
+  entry_point?: string;
+  functions_count?: number;
+  strings_count?: number;
+  vulnerabilities: FirmwareVulnerability[];
+  crypto_keys?: string[];
+  status: 'pending' | 'analyzing' | 'completed' | 'failed';
+}
+
+export interface FirmwareVulnerability {
+  type: 'hardcoded_credential' | 'buffer_overflow' | 'command_injection' | 'weak_crypto' | 'backdoor';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  offset?: number;
+  description: string;
+}
+
+export interface CryptoAttack {
+  id: string;
+  name: string;
+  type: CryptoAttackType;
+  difficulty: 'easy' | 'medium' | 'hard' | 'extreme';
+  gpu_required: boolean;
+  estimated_time: string;
+  description: string;
+}
+
+export interface LinkBudgetParams {
+  frequency_hz: number;
+  distance_km: number;
+  tx_power_dbm: number;
+  tx_antenna_gain_dbi: number;
+  rx_antenna_gain_dbi: number;
+  system_noise_temp_k: number;
+  atmospheric_loss_db?: number;
+  rain_loss_db?: number;
+}
+
+export interface LinkBudgetResult {
+  fspl_db: number;
+  total_loss_db: number;
+  received_power_dbm: number;
+  snr_db: number;
+  margin_db: number;
+  link_viable: boolean;
+}
+
+export interface MeshRoute {
+  source_sat_id: string;
+  dest_sat_id: string;
+  hops: string[];
+  latency_ms: number;
+  bandwidth_mbps: number;
+  reliability_score: number;
+}
+
+export interface GroundStationProfile {
+  id: string;
+  name: string;
+  operator: string;
+  location: {
+    lat: number;
+    lon: number;
+    elevation_m?: number;
+  };
+  uplink_freq_hz: number;
+  downlink_freq_hz: number;
+  eirp_dbw: number;
+  antenna_diameter_m?: number;
+  protocols: string[];
+  modulation: string;
+  coding?: string;
+  timing_precision_ns?: number;
+  rf_fingerprint?: Record<string, any>;
+}
+
+export interface ReplayBuffer {
+  id: string;
+  name: string;
+  center_freq: number;
+  sample_rate: number;
+  duration_seconds: number;
+  samples_count: number;
+  recorded_at: Date;
+  metadata: {
+    satellite_id?: string;
+    signal_type?: string;
+    snr?: number;
+  };
+}
+
+export interface AutonomousHuntSession {
+  id: string;
+  status: 'idle' | 'scanning' | 'correlating' | 'exploiting' | 'completed' | 'failed';
+  freq_range: {
+    start_hz: number;
+    end_hz: number;
+  };
+  discovered_satellites: number;
+  vulnerable_satellites: number;
+  exploited_satellites: number;
+  start_time: Date;
+  end_time?: Date;
+  progress: number;
+}
+
+export interface DiscoveredSatellite {
+  freq_hz: number;
+  modulation: ModulationType;
+  protocol?: ProtocolType;
+  norad_id?: number;
+  designation?: string;
+  snr_db: number;
+  vulnerabilities: string[];
+}
+
+export interface DVBS2Packet {
+  modcod: string;
+  fec_rate: string;
+  pilot_symbols: boolean;
+  payload: string;
+}
+
+export interface AX25Frame {
+  source_callsign: string;
+  dest_callsign: string;
+  frame_type: 'UI' | 'I' | 'SABM';
+  payload: string;
+}
+
+export interface LRPTFrame {
+  timestamp: Date;
+  frame_number: number;
+  vcid: number;
+  image_data?: string;
+  telemetry?: Record<string, any>;
+}
