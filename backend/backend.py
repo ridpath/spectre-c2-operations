@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, HTTPException, Depends, WebSocketDisconnect, UploadFile, File, Request
+from fastapi import FastAPI, WebSocket, HTTPException, Depends, WebSocketDisconnect, UploadFile, File, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
@@ -1076,7 +1076,7 @@ async def list_satellites(
 
 @app.post("/api/v1/satellites/fetch-all")
 async def fetch_satellites_from_sources(
-    sources: Optional[List[str]] = None,
+    sources: Optional[List[str]] = Body(None),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
