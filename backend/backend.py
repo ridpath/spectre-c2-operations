@@ -1099,12 +1099,19 @@ async def fetch_satellites_from_sources(
             count = 0
             for sat in satellites:
                 try:
+                    # Extract epoch from TLE line 1
+                    from skyfield.api import load, EarthSatellite
+                    ts = load.timescale()
+                    satellite_obj = EarthSatellite(sat['tle_line1'], sat['tle_line2'], sat['name'], ts)
+                    epoch_datetime = satellite_obj.epoch.utc_datetime()
+                    
                     existing = db.query(TLEData).filter(TLEData.norad_id == sat['norad_id']).first()
                     if existing:
                         existing.tle_line1 = sat['tle_line1']
                         existing.tle_line2 = sat['tle_line2']
-                        existing.epoch = sat['epoch']
+                        existing.epoch = epoch_datetime
                         existing.source = 'celestrak'
+                        existing.group_name = sat.get('group')
                     else:
                         tle_entry = TLEData(
                             id=uuid.uuid4(),
@@ -1112,8 +1119,9 @@ async def fetch_satellites_from_sources(
                             norad_id=sat['norad_id'],
                             tle_line1=sat['tle_line1'],
                             tle_line2=sat['tle_line2'],
-                            epoch=sat['epoch'],
-                            source='celestrak'
+                            epoch=epoch_datetime,
+                            source='celestrak',
+                            group_name=sat.get('group')
                         )
                         db.add(tle_entry)
                     count += 1
