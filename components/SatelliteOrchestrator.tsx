@@ -65,8 +65,12 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-const SatelliteOrchestrator: React.FC = () => {
-  const [selectedSatId, setSelectedSatId] = useState<string | null>(ORBITAL_ASSETS[0].id);
+interface SatelliteOrchestratorProps {
+  satellites: OrbitalAsset[];
+}
+
+const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellites }) => {
+  const [selectedSatId, setSelectedSatId] = useState<string | null>(satellites[0]?.id || null);
   const [activeTab, setActiveTab] = useState<'tracking' | 'ccsds' | 'dpi' | 'subsystems' | 'spectral' | 'aos' | 'relay'>('tracking');
   const [rotation, setRotation] = useState(0);
   const [isInjecting, setIsInjecting] = useState(false);
@@ -84,20 +88,32 @@ const SatelliteOrchestrator: React.FC = () => {
   const [aiModulation, setAiModulation] = useState<ModulationType>('QPSK');
   const [meshPeers, setMeshPeers] = useState(3);
   const [spectrumData, setSpectrumData] = useState<number[]>([]);
+
+  if (satellites.length === 0) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-8">
+        <div className="text-center space-y-4">
+          <Satellite size={64} className="text-slate-700 mx-auto" />
+          <h2 className="text-2xl font-black text-slate-400 uppercase">No Satellites Available</h2>
+          <p className="text-slate-500">Satellites are being fetched from backend...</p>
+        </div>
+      </div>
+    );
+  }
   
-  const activeSat = liveAsset || ORBITAL_ASSETS.find(s => s.id === selectedSatId) || ORBITAL_ASSETS[0];
+  const activeSat = liveAsset || satellites.find(s => s.id === selectedSatId) || satellites[0] || ORBITAL_ASSETS[0];
   const waterfallRef = useRef<HTMLCanvasElement>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const spectrumSocketRef = useRef<WebSocket | null>(null);
 
-  const dopplerShift = activeSat.coords ? (activeSat.coords.velocity * 1000 * 2.2e9 / 3e8).toFixed(2) : '0.00';
+  const dopplerShift = activeSat?.coords ? (activeSat.coords.velocity * 1000 * 2.2e9 / 3e8).toFixed(2) : '0.00';
 
   // --- CORE BACKEND INTEGRATIONS ---
 
   // 1. Orbital Telemetry WebSocket
   useEffect(() => {
     if (!selectedSatId) return;
-    const noradId = ORBITAL_ASSETS.find(s => s.id === selectedSatId)?.noradId || 43105;
+    const noradId = satellites.find(s => s.id === selectedSatId)?.noradId || 43105;
     
     const ws = new WebSocket(`ws://localhost:8000/ws/orbital/${noradId}`);
     socketRef.current = ws;
@@ -164,7 +180,7 @@ const SatelliteOrchestrator: React.FC = () => {
         await fetch('http://localhost:8000/api/v1/iq/dump', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer valid_token' },
-          body: JSON.stringify({ filename: `capture_${activeSat.noradId}` })
+          body: JSON.stringify({ filename: `capture_${activeSat?.noradId || 'unknown'}` })
         });
       } catch (e) { console.error("IQ dump failed"); }
     }
@@ -298,7 +314,7 @@ const SatelliteOrchestrator: React.FC = () => {
              </div>
 
              <div className="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-hide">
-                {ORBITAL_ASSETS.map(sat => (
+                {satellites.map(sat => (
                   <button
                     key={sat.id}
                     onClick={() => setSelectedSatId(sat.id)}
@@ -362,13 +378,13 @@ const SatelliteOrchestrator: React.FC = () => {
                     <Dna size={24} className="text-purple-500" /> Propagation Vector
                   </h3>
                   <div className="p-4 bg-black/60 border border-white/5 rounded-2xl font-mono text-[9px] text-slate-500 leading-tight">
-                    {activeSat.tle.line1}<br/>{activeSat.tle.line2}
+                    {activeSat?.tle?.line1 || 'TLE LINE 1 NOT AVAILABLE'}<br/>{activeSat?.tle?.line2 || 'TLE LINE 2 NOT AVAILABLE'}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                    <div className="bg-purple-500/10 border border-purple-500/20 px-6 py-4 rounded-3xl flex flex-col items-end">
                       <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Velocity</span>
-                      <span className="text-lg font-black text-white">{activeSat.coords.velocity.toFixed(2)} km/s</span>
+                      <span className="text-lg font-black text-white">{activeSat?.coords?.velocity?.toFixed(2) || '0.00'} km/s</span>
                    </div>
                    <div className="bg-emerald-500/10 border border-emerald-500/20 px-6 py-4 rounded-3xl flex flex-col items-end">
                       <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Antenna Servo Lock</span>
@@ -506,7 +522,7 @@ const SatelliteOrchestrator: React.FC = () => {
           {/* SUBSYSTEMS TAB */}
           {activeTab === 'subsystems' && (
             <div className="flex-1 grid grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto pr-2 scrollbar-hide pb-20">
-               {activeSat.subsystems.map(sub => {
+               {activeSat?.subsystems?.map(sub => {
                  const isSpoofed = spoofedSubsystems.has(sub.id);
                  return (
                  <div key={sub.id} className="bg-slate-900/40 border border-slate-800 p-8 rounded-[2.5rem] flex flex-col gap-6 group hover:border-purple-500/40 transition-all relative overflow-hidden">
@@ -564,7 +580,7 @@ const SatelliteOrchestrator: React.FC = () => {
                     <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-4">
                       <Waves size={24} className="text-blue-500" /> Signal Distribution
                     </h3>
-                    <p className="text-[10px] text-slate-500 mt-2 uppercase font-black tracking-[0.2em]">{activeSat.designation} Center: {activeSat.rfProfile?.frequency}</p>
+                    <p className="text-[10px] text-slate-500 mt-2 uppercase font-black tracking-[0.2em]">{activeSat?.designation || 'Unknown'} Center: {activeSat?.rfProfile?.frequency || 'N/A'}</p>
                  </div>
                  <div className="flex items-center gap-4 bg-slate-900/60 p-2 rounded-2xl border border-white/5">
                     <button 
