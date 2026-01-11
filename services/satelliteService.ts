@@ -80,9 +80,14 @@ class SatelliteService {
           console.warn('Authentication failed for satellite fetch');
           return { success: false, message: 'Authentication required' };
         }
-        const error = await response.json().catch(() => ({ detail: 'Fetch failed' }));
-        console.error(`Satellite fetch failed (${response.status}):`, error);
-        return { success: false, message: error.detail || 'Fetch failed' };
+        const errorText = await response.text();
+        console.error(`Satellite fetch failed (${response.status}):`, errorText);
+        try {
+          const error = JSON.parse(errorText);
+          return { success: false, message: error.detail || error.message || 'Fetch failed' };
+        } catch {
+          return { success: false, message: errorText || 'Fetch failed' };
+        }
       }
 
       return await response.json();

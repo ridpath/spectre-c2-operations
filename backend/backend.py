@@ -1087,7 +1087,7 @@ async def fetch_satellites_from_sources(
         sources = request.sources
         if sources is None or 'celestrak' in sources:
             print("[INFO] Fetching satellites from CelesTrak...")
-            satellites = await tle_fetcher.fetch_all_groups()
+            satellites = await tle_fetcher.fetch_all_celestrak_groups()
             
             if not satellites:
                 return {
