@@ -8,36 +8,32 @@ export const useC2 = () => {
   const [tasks, setTasks] = useState<C2Task[]>([]);
   const [listeners, setListeners] = useState<C2Listener[]>([]);
   const [operators, setOperators] = useState<Operator[]>([]);
-  const [currentOperator, setCurrentOperator] = useState<Operator | null>(null);
+  const [currentOperator, setCurrentOperator] = useState<Operator | null>(() => {
+    try {
+      const token = localStorage.getItem('spectre_access_token');
+      const userStr = localStorage.getItem('spectre_user');
+      if (token && userStr) {
+        const user = JSON.parse(userStr);
+        return {
+          id: user.id,
+          alias: user.username,
+          role: user.role.toUpperCase() as 'ADMIN' | 'OPERATOR',
+          status: 'active',
+          lastSeen: new Date()
+        };
+      }
+    } catch (error) {
+      console.log('No stored auth found');
+    }
+    return null;
+  });
+  
   const [securityConfig, setSecurityConfig] = useState<SecurityConfig>({
     isAuthEnabled: true,
     mfaRequired: false,
     sessionTimeout: 60,
     opsecThreshold: 75
   });
-
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const { authService } = await import('../services/authService');
-        const user = authService.getStoredUser();
-        if (user) {
-          const op: Operator = {
-            id: user.id,
-            alias: user.username,
-            role: user.role.toUpperCase() as 'ADMIN' | 'OPERATOR',
-            status: 'active',
-            lastSeen: new Date()
-          };
-          setCurrentOperator(op);
-        }
-      } catch (error) {
-        console.log('No stored auth, will show login screen');
-      }
-    };
-    
-    initAuth();
-  }, []);
 
   useEffect(() => {
     setListeners([

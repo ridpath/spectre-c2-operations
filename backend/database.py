@@ -11,7 +11,15 @@ settings = get_settings()
 if settings.DATABASE_URL.startswith("sqlite"):
     engine = create_engine(
         settings.DATABASE_URL,
-        connect_args={"check_same_thread": False},
+        connect_args={
+            "check_same_thread": False,
+            "timeout": 30,
+            "isolation_level": None
+        },
+        poolclass=QueuePool,
+        pool_size=20,
+        max_overflow=40,
+        pool_pre_ping=True,
         echo=False
     )
 else:

@@ -13,13 +13,16 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", 
-        "postgresql://spectre:spectre_secure_pass@localhost:5432/spectre_c2"
+        "sqlite:///./spectre.db"
     )
     
     DATABASE_POOL_SIZE: int = 20
     DATABASE_MAX_OVERFLOW: int = 40
     DATABASE_POOL_TIMEOUT: int = 30
     DATABASE_POOL_RECYCLE: int = 3600
+    
+    CACHE_ENABLED: bool = os.getenv("CACHE_ENABLED", "true").lower() == "true"
+    CACHE_TTL_SECONDS: int = int(os.getenv("CACHE_TTL_SECONDS", "300"))
     
     JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "CHANGE_THIS_IN_PRODUCTION_USE_STRONG_SECRET_KEY")
     JWT_ALGORITHM: str = "HS256"

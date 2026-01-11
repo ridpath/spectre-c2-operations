@@ -36,7 +36,7 @@ const ModuleBrowser: React.FC<ModuleBrowserProps> = ({ activeConnection, onTaskM
                 filter === cat ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:text-slate-300'
               }`}
             >
-              {cat}
+              {cat === 'Post-Ex' ? 'Post-Ex' : cat}
             </button>
           ))}
         </div>

