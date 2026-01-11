@@ -1,6 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ORBITAL_ASSETS, RF_REGISTRY } from '../constants';
+import OrbitalVisualization from './OrbitalVisualization';
+import LocationDisplay from './LocationDisplay';
+import { locationService } from '../services/locationService';
 import { 
   OrbitalAsset, 
   CCSDSPacket, 
@@ -88,6 +91,8 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
   const [aiModulation, setAiModulation] = useState<ModulationType>('QPSK');
   const [meshPeers, setMeshPeers] = useState(3);
   const [spectrumData, setSpectrumData] = useState<number[]>([]);
+  const [observerLat, setObserverLat] = useState<number>(0);
+  const [observerLng, setObserverLng] = useState<number>(0);
 
   if (satellites.length === 0) {
     return (
@@ -147,6 +152,18 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
       }
     };
     return () => ws.close();
+  }, []);
+
+  // 3. Location Service
+  useEffect(() => {
+    const unsubscribe = locationService.subscribe((coords) => {
+      if (coords) {
+        setObserverLat(coords.latitude);
+        setObserverLng(coords.longitude);
+      }
+    });
+    locationService.ensureLocation().catch(() => {});
+    return unsubscribe;
   }, []);
 
   // 3. TLE Sync Handler
@@ -394,16 +411,17 @@ const SatelliteOrchestrator: React.FC<SatelliteOrchestratorProps> = ({ satellite
               </div>
 
               <div className="flex-1 flex items-center justify-center relative">
-                 <div className="w-[450px] h-[450px] relative transition-all duration-1000 transform" style={{ perspective: '1000px' }}>
-                    <svg viewBox="0 0 100 100" className="w-full h-full animate-[spin_240s_linear_infinite]">
-                       <circle cx="50" cy="50" r="48" fill="transparent" stroke="rgba(168, 85, 247, 0.1)" strokeWidth="0.5" />
-                       <path d="M30,40 Q40,30 50,45 T70,40 T60,60 T40,55 Z" fill="rgba(168, 85, 247, 0.02)" stroke="rgba(168, 85, 247, 0.1)" strokeWidth="0.5" />
-                    </svg>
-                    <div className="absolute top-1/2 left-1/2 w-8 h-8 -translate-x-1/2 -translate-y-1/2 z-50 transition-all duration-1000"
-                         style={{ transform: `translate(-50%, -50%) rotate(${rotation}deg) translateY(-210px) rotate(-${rotation}deg)` }}>
-                      <Satellite size={32} className="text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
-                    </div>
-                 </div>
+                 <OrbitalVisualization 
+                   satellites={satellites}
+                   selectedSatellite={selectedSatId}
+                   onSelectSatellite={setSelectedSatId}
+                   observerLat={observerLat}
+                   observerLng={observerLng}
+                 />
+              </div>
+              
+              <div className="mt-4">
+                <LocationDisplay />
               </div>
             </div>
           )}
