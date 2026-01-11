@@ -11,15 +11,42 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [passkey, setPasskey] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
 
-  const handleEntry = (e: React.FormEvent) => {
+  const handleEntry = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!alias) return;
+    if (!alias || !passkey) return;
     setIsVerifying(true);
-    // Simulate authentication handshake
-    setTimeout(() => {
-      onLogin(alias);
+    
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: alias,
+          password: passkey
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Authentication failed' }));
+        console.error('Login failed:', error.detail || 'Invalid credentials');
+        setIsVerifying(false);
+        return;
+      }
+
+      const data = await response.json();
+      
+      localStorage.setItem('spectre_access_token', data.access_token);
+      localStorage.setItem('spectre_refresh_token', data.refresh_token);
+      localStorage.setItem('spectre_user', JSON.stringify(data.user));
+      
+      onLogin(data.user.username);
       setIsVerifying(false);
-    }, 2000);
+    } catch (error) {
+      console.error('Login error:', error);
+      setIsVerifying(false);
+    }
   };
 
   return (
@@ -69,6 +96,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                <div className="relative">
                  <Key size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
                  <input 
+                  required
                   type="password"
                   value={passkey}
                   onChange={e => setPasskey(e.target.value)}
@@ -79,7 +107,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             </div>
 
             <button 
-              disabled={isVerifying || !alias}
+              disabled={isVerifying || !alias || !passkey}
               className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-emerald-900/40 flex items-center justify-center gap-3 active:scale-95"
             >
               {isVerifying ? (

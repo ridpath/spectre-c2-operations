@@ -342,7 +342,7 @@ const App: React.FC = () => {
               {activeView === 'shell' && <Terminal ref={terminalRef} connection={activeConnection} onCommand={handleCommandExecution} />}
               {activeView === 'vuln' && <VulnerabilityValidator connections={c2.connections} onExecute={() => {}} />}
               {activeView === 'pivot' && <PivotOrchestrator connections={c2.connections} />}
-              {activeView === 'capabilities' && <ModuleBrowser activeConnection={activeConnection} onTaskModule={(output, isError) => { if(terminalRef.current) { terminalRef.current.addOutput(output, isError ? 'error' : 'output'); setActiveView('shell'); } }} />}
+              {activeView === 'capabilities' && <ModuleBrowser activeConnection={activeConnection} onTaskModule={(command: string) => { if(terminalRef.current) { terminalRef.current.insertCommand(command); setActiveView('shell'); } }} />}
               {activeView === 'factory' && <PayloadFactory onInsertCode={(c) => { if(terminalRef.current) { terminalRef.current.insertCommand(c); setActiveView('shell'); } }} />}
               {activeView === 'loot' && <EvidenceVault />}
               {activeView === 'egress' && <TorEgressMonitor />}
