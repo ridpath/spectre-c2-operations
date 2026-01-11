@@ -117,6 +117,11 @@ const App: React.FC = () => {
         return;
       }
 
+      if (!c2.currentOperator) {
+        setOrbitalAssets(ORBITAL_ASSETS);
+        return;
+      }
+
       try {
         const satellites = await satelliteService.fetchSatellitesFromBackend(500);
         
