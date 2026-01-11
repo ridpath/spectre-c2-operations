@@ -10,14 +10,35 @@ export const useC2 = () => {
   const [operators, setOperators] = useState<Operator[]>([]);
   const [currentOperator, setCurrentOperator] = useState<Operator | null>(null);
   const [securityConfig, setSecurityConfig] = useState<SecurityConfig>({
-    isAuthEnabled: false,
+    isAuthEnabled: true,
     mfaRequired: false,
     sessionTimeout: 60,
-    // Fix: Added missing opsecThreshold to satisfy SecurityConfig interface
     opsecThreshold: 75
   });
 
-  // Load Mock State
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const { authService } = await import('../services/authService');
+        const user = authService.getStoredUser();
+        if (user) {
+          const op: Operator = {
+            id: user.id,
+            alias: user.username,
+            role: user.role.toUpperCase() as 'ADMIN' | 'OPERATOR',
+            status: 'active',
+            lastSeen: new Date()
+          };
+          setCurrentOperator(op);
+        }
+      } catch (error) {
+        console.log('No stored auth, will show login screen');
+      }
+    };
+    
+    initAuth();
+  }, []);
+
   useEffect(() => {
     setListeners([
       { id: 'l1', name: 'HTTP_Beacon_80', type: 'http', lhost: '10.10.14.12', lport: 80, active: true, profiles: ['ghost-stealth'] },
@@ -28,21 +49,22 @@ export const useC2 = () => {
       { id: 'op1', alias: 'Spectre-Lead', role: 'ADMIN', status: 'active', lastSeen: new Date() }
     ]);
 
-    // Initial connections for demo
-    addConnection({ host: 'DC01.HTB.LOCAL', username: 'Administrator', integrityLevel: 'Administrator', entropy: 45 });
-    addConnection({ host: 'WS-01.HTB.LOCAL', username: 'jsmith', integrityLevel: 'User', entropy: 12 });
-  }, []);
+    if (currentOperator) {
+      addConnection({ host: 'DC01.HTB.LOCAL', username: 'Administrator', integrityLevel: 'Administrator', entropy: 45 });
+      addConnection({ host: 'WS-01.HTB.LOCAL', username: 'jsmith', integrityLevel: 'User', entropy: 12 });
+    }
+  }, [currentOperator]);
 
-  const login = useCallback((alias: string) => {
+  const login = useCallback((user: any) => {
     const op: Operator = {
-      id: Math.random().toString(36).substr(2, 5),
-      alias,
-      role: 'OPERATOR',
+      id: user.id || Math.random().toString(36).substr(2, 5),
+      alias: user.username || user.alias || 'Operator',
+      role: (user.role?.toUpperCase() || 'OPERATOR') as 'ADMIN' | 'OPERATOR',
       status: 'active',
       lastSeen: new Date()
     };
     setCurrentOperator(op);
-    setOperators(prev => [...prev, op]);
+    setOperators(prev => [...prev.filter(o => o.id !== op.id), op]);
   }, []);
 
   const logout = useCallback(() => setCurrentOperator(null), []);

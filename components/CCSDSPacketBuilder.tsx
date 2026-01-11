@@ -31,10 +31,6 @@ const CCSDSPacketBuilder: React.FC<CCSDSPacketBuilderProps> = ({ onTransmit, onC
   const [crcValid, setCrcValid] = useState(true);
 
   useEffect(() => {
-    buildHexPacket();
-  }, [packet]);
-
-  const buildHexPacket = () => {
     const versionBits = packet.version & 0x07;
     const typeBit = packet.type === 'TC' ? 1 : 0;
     const apidBits = packet.apid & 0x7FF;
@@ -60,9 +56,7 @@ const CCSDSPacketBuilder: React.FC<CCSDSPacketBuilderProps> = ({ onTransmit, onC
     
     const hex = fullPacket.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
     setHexOutput(hex);
-    
-    setPacket(prev => ({ ...prev, dataLength: payloadBytes.length }));
-  };
+  }, [packet]);
 
   const hexToBytes = (hex: string): number[] => {
     const cleaned = hex.replace(/[^0-9A-Fa-f]/g, '');

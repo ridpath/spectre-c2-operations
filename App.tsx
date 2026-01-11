@@ -92,18 +92,24 @@ const App: React.FC = () => {
   const [inPass, setInPass] = useState(false);
   const [recording, setRecording] = useState(false);
   const [antenna, setAntenna] = useState({ azimuth: 180, elevation: 45, rotctld_status: 'connected' as const, servo_lock: true, status: 'tracking' as const });
-  const [orbitalAssets, setOrbitalAssets] = useState(ORBITAL_ASSETS);
+  const [orbitalAssets, setOrbitalAssets] = useState<typeof ORBITAL_ASSETS>(ORBITAL_ASSETS);
   const [isDemoMode, setIsDemoMode] = useState(demoModeService.getDemoMode());
 
   useEffect(() => {
     const unsubscribe = demoModeService.subscribe((isDemo) => {
       setIsDemoMode(isDemo);
+      if (isDemo) {
+        setOrbitalAssets(ORBITAL_ASSETS);
+      }
     });
     return unsubscribe;
   }, []);
 
   useEffect(() => {
-    if (!c2.currentOperator) return;
+    if (!c2.currentOperator) {
+      setOrbitalAssets(ORBITAL_ASSETS);
+      return;
+    }
     
     const fetchSatellitesAndAutoPopulate = async () => {
       if (isDemoMode) {
@@ -123,19 +129,21 @@ const App: React.FC = () => {
             const converted = updatedSatellites
               .map(sat => satelliteService.convertToOrbitalAsset(sat))
               .filter((sat): sat is typeof ORBITAL_ASSETS[0] => sat !== null);
-            setOrbitalAssets(converted);
+            setOrbitalAssets(converted.length > 0 ? converted : ORBITAL_ASSETS);
           } else {
-            setOrbitalAssets([]);
+            console.warn('Satellite fetch failed, using demo data');
+            setOrbitalAssets(ORBITAL_ASSETS);
           }
         } else {
           const converted = satellites
             .map(sat => satelliteService.convertToOrbitalAsset(sat))
             .filter((sat): sat is typeof ORBITAL_ASSETS[0] => sat !== null);
-          setOrbitalAssets(converted);
+          setOrbitalAssets(converted.length > 0 ? converted : ORBITAL_ASSETS);
         }
       } catch (error) {
         console.error('Failed to fetch satellites:', error);
-        setOrbitalAssets([]);
+        console.log('Falling back to demo satellite data');
+        setOrbitalAssets(ORBITAL_ASSETS);
       }
     };
     
