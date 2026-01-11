@@ -18,6 +18,22 @@ import APTOrchestrator from './components/APTOrchestrator';
 import PivotOrchestrator from './components/PivotOrchestrator';
 import VulnerabilityValidator from './components/VulnerabilityValidator';
 import SatelliteOrchestrator from './components/SatelliteOrchestrator';
+import MissionPlanner from './components/MissionPlanner';
+import PassPredictor from './components/PassPredictor';
+import SafetyGate from './components/SafetyGate';
+import CommandTemplateLibrary from './components/CommandTemplateLibrary';
+import QuickActionsToolbar from './components/QuickActionsToolbar';
+import SignalStrengthMonitor from './components/SignalStrengthMonitor';
+import CCSDSPacketBuilder from './components/CCSDSPacketBuilder';
+import VulnerabilityScanner from './components/VulnerabilityScanner';
+import AttackChainPlaybook from './components/AttackChainPlaybook';
+import ReportGenerator from './components/ReportGenerator';
+import DopplerCorrection from './components/DopplerCorrection';
+import TimelineView from './components/TimelineView';
+import IntegratedToolLauncher from './components/IntegratedToolLauncher';
+import DemoModeToggle from './components/DemoModeToggle';
+import LocationDisplay from './components/LocationDisplay';
+import ErrorBoundary from './components/ErrorBoundary';
 import FirmwareStudio from './components/FirmwareStudio';
 import CryptanalysisLab from './components/CryptanalysisLab';
 import SatelliteExploitOrchestrator from './components/SatelliteExploitOrchestrator';
@@ -25,6 +41,10 @@ import LinkBudgetCalculator from './components/LinkBudgetCalculator';
 
 import { useC2 } from './hooks/useC2';
 import { executeCommand, ShellContext } from './services/commandService';
+import { evidenceCollector } from './services/evidenceCollector';
+import { satelliteService } from './services/satelliteService';
+import { demoModeService } from './services/demoModeService';
+import { ORBITAL_ASSETS } from './constants';
 import { 
   Terminal as TerminalIcon, 
   Share2, 
@@ -45,20 +65,86 @@ import {
   Satellite,
   Link as LinkIcon,
   Unplug,
+  Calendar,
+  Package,
+  Bug,
+  BookOpen,
+  FileText,
+  Radio,
+  Wrench,
   FileCode,
   Lock,
   Calculator
 } from 'lucide-react';
+import { TransmissionRequest, SatelliteMission } from './types';
 
-type ViewID = 'topology' | 'shell' | 'apt' | 'vuln' | 'pivot' | 'capabilities' | 'factory' | 'loot' | 'egress' | 'spectrum' | 'autonomous' | 'sigint' | 'satellite' | 'team' | 'firmware' | 'crypto' | 'exploit' | 'linkbudget';
+type ViewID = 'topology' | 'shell' | 'apt' | 'vuln' | 'pivot' | 'capabilities' | 'factory' | 'loot' | 'egress' | 'spectrum' | 'autonomous' | 'sigint' | 'satellite' | 'team' | 'mission' | 'timeline' | 'ccsds' | 'vulnscan' | 'playbook' | 'report' | 'doppler' | 'tools' | 'commands' | 'firmware' | 'crypto' | 'exploit' | 'linkbudget';
 
 const App: React.FC = () => {
   const c2 = useC2();
   const [activeView, setActiveView] = useState<ViewID>('topology');
   const [bridgeConnected, setBridgeConnected] = useState<boolean | null>(null);
   const terminalRef = useRef<TerminalHandle>(null);
+  const [selectedSatellite, setSelectedSatellite] = useState(ORBITAL_ASSETS[0]);
+  const [selectedMission, setSelectedMission] = useState<SatelliteMission | null>(null);
+  const [showSafetyGate, setShowSafetyGate] = useState(false);
+  const [transmissionRequest, setTransmissionRequest] = useState<TransmissionRequest | null>(null);
+  const [inPass, setInPass] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [antenna, setAntenna] = useState({ azimuth: 180, elevation: 45, rotctld_status: 'connected' as const, servo_lock: true, status: 'tracking' as const });
+  const [orbitalAssets, setOrbitalAssets] = useState(ORBITAL_ASSETS);
+  const [isDemoMode, setIsDemoMode] = useState(demoModeService.getDemoMode());
 
-  // Tactical Bridge Heartbeat Monitor
+  useEffect(() => {
+    const unsubscribe = demoModeService.subscribe((isDemo) => {
+      setIsDemoMode(isDemo);
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if (!c2.currentOperator) return;
+    
+    const fetchSatellitesAndAutoPopulate = async () => {
+      if (isDemoMode) {
+        setOrbitalAssets(ORBITAL_ASSETS);
+        return;
+      }
+
+      try {
+        const satellites = await satelliteService.fetchSatellitesFromBackend(500);
+        
+        if (satellites.length === 0) {
+          console.log('No satellites in database, triggering auto-fetch from external sources...');
+          const fetchResult = await satelliteService.triggerSatelliteFetch(['celestrak']);
+          if (fetchResult.success) {
+            console.log(`Auto-fetch complete: ${fetchResult.count} satellites added`);
+            const updatedSatellites = await satelliteService.fetchSatellitesFromBackend(500);
+            const converted = updatedSatellites
+              .map(sat => satelliteService.convertToOrbitalAsset(sat))
+              .filter((sat): sat is typeof ORBITAL_ASSETS[0] => sat !== null);
+            setOrbitalAssets(converted);
+          } else {
+            setOrbitalAssets([]);
+          }
+        } else {
+          const converted = satellites
+            .map(sat => satelliteService.convertToOrbitalAsset(sat))
+            .filter((sat): sat is typeof ORBITAL_ASSETS[0] => sat !== null);
+          setOrbitalAssets(converted);
+        }
+      } catch (error) {
+        console.error('Failed to fetch satellites:', error);
+        setOrbitalAssets([]);
+      }
+    };
+    
+    fetchSatellitesAndAutoPopulate();
+    const refreshInterval = setInterval(fetchSatellitesAndAutoPopulate, 3600000);
+    
+    return () => clearInterval(refreshInterval);
+  }, [c2.currentOperator, isDemoMode]);
+
   useEffect(() => {
     const checkBridge = async () => {
       try {
@@ -120,13 +206,16 @@ const App: React.FC = () => {
       ]
     },
     {
-      name: 'Intel',
+      name: 'Satellite',
       items: [
-        { id: 'loot', icon: <Database size={14} />, label: 'Vault' },
-        { id: 'satellite', icon: <Satellite size={14} />, label: 'Orbital' },
-        { id: 'sigint', icon: <Activity size={14} />, label: 'SIGINT' },
-        { id: 'autonomous', icon: <Ghost size={14} />, label: 'Overlord' },
-        { id: 'team', icon: <Settings size={14} />, label: 'Control' }
+        { id: 'mission', icon: <Briefcase size={14} />, label: 'Missions' },
+        { id: 'timeline', icon: <Calendar size={14} />, label: 'Timeline' },
+        { id: 'ccsds', icon: <Package size={14} />, label: 'CCSDS' },
+        { id: 'vulnscan', icon: <Bug size={14} />, label: 'Vuln Scan' },
+        { id: 'playbook', icon: <BookOpen size={14} />, label: 'Playbooks' },
+        { id: 'report', icon: <FileText size={14} />, label: 'Reports' },
+        { id: 'doppler', icon: <Radio size={14} />, label: 'Doppler' },
+        { id: 'tools', icon: <Wrench size={14} />, label: 'SDR Tools' },
       ]
     },
     {
@@ -136,6 +225,16 @@ const App: React.FC = () => {
         { id: 'firmware', icon: <FileCode size={14} />, label: 'Firmware' },
         { id: 'crypto', icon: <Lock size={14} />, label: 'Crypto' },
         { id: 'linkbudget', icon: <Calculator size={14} />, label: 'Link' }
+      ]
+    },
+    {
+      name: 'Intel',
+      items: [
+        { id: 'loot', icon: <Database size={14} />, label: 'Vault' },
+        { id: 'satellite', icon: <Satellite size={14} />, label: 'Orbital' },
+        { id: 'sigint', icon: <Activity size={14} />, label: 'SIGINT' },
+        { id: 'autonomous', icon: <Ghost size={14} />, label: 'Overlord' },
+        { id: 'team', icon: <Settings size={14} />, label: 'Control' }
       ]
     }
   ];
@@ -181,6 +280,8 @@ const App: React.FC = () => {
           </nav>
 
           <div className="flex items-center gap-6 shrink-0">
+            <LocationDisplay />
+
             {/* Tactical Bridge HUD Indicator */}
             <div className="flex flex-col items-end">
                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Tactical Bridge</span>
@@ -195,6 +296,8 @@ const App: React.FC = () => {
                   </span>
                </div>
             </div>
+
+            <DemoModeToggle />
 
             <div className="hidden xl:flex flex-col items-end">
                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">System Entropy</span>
@@ -220,29 +323,68 @@ const App: React.FC = () => {
           <div className="absolute inset-0 bg-[#020617]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(16,185,129,0.03) 2px, transparent 0)', backgroundSize: '48px 48px' }}></div>
           
           <div className="relative h-full z-10">
-            {activeView === 'topology' && <NeuralEngagementMap connections={c2.connections} tasks={c2.tasks} onSelectTarget={c2.setActiveConnectionId} />}
-            {activeView === 'apt' && <APTOrchestrator onExecuteChain={(chain) => console.log('Executing', chain.name)} />}
-            {activeView === 'shell' && <Terminal ref={terminalRef} connection={activeConnection} onCommand={handleCommandExecution} />}
-            {activeView === 'vuln' && <VulnerabilityValidator connections={c2.connections} onExecute={(ex, target) => console.log(`Exploiting ${target} with ${ex}`)} />}
-            {activeView === 'pivot' && <PivotOrchestrator connections={c2.connections} />}
-            {activeView === 'capabilities' && <ModuleBrowser activeConnection={activeConnection} onTaskModule={(cmd) => { if(terminalRef.current) { terminalRef.current.insertCommand(cmd); setActiveView('shell'); } }} />}
-            {activeView === 'factory' && <PayloadFactory onInsertCode={(c) => { if(terminalRef.current) { terminalRef.current.insertCommand(c); setActiveView('shell'); } }} />}
-            {activeView === 'loot' && <EvidenceVault />}
-            {activeView === 'egress' && <TorEgressMonitor />}
-            {activeView === 'spectrum' && <SpectrumStudio />}
-            {activeView === 'autonomous' && <AutonomousOrchestrator connections={c2.connections} />}
-            {activeView === 'sigint' && <OpSecMonitor connections={c2.connections} />}
-            {activeView === 'satellite' && <SatelliteOrchestrator />}
-            {activeView === 'team' && <OperatorSettings operators={c2.operators} config={c2.securityConfig} onUpdateConfig={(updates) => c2.setSecurityConfig(prev => ({ ...prev, ...updates }))} onRemoveOperator={() => {}} />}
-            {activeView === 'exploit' && <SatelliteExploitOrchestrator />}
-            {activeView === 'firmware' && <FirmwareStudio />}
-            {activeView === 'crypto' && <CryptanalysisLab />}
-            {activeView === 'linkbudget' && <LinkBudgetCalculator />}
+            <ErrorBoundary>
+              {activeView === 'topology' && <NeuralEngagementMap connections={c2.connections} tasks={c2.tasks} onSelectTarget={c2.setActiveConnectionId} />}
+              {activeView === 'apt' && <APTOrchestrator onExecuteChain={() => {}} />}
+              {activeView === 'shell' && <Terminal ref={terminalRef} connection={activeConnection} onCommand={handleCommandExecution} />}
+              {activeView === 'vuln' && <VulnerabilityValidator connections={c2.connections} onExecute={() => {}} />}
+              {activeView === 'pivot' && <PivotOrchestrator connections={c2.connections} />}
+              {activeView === 'capabilities' && <ModuleBrowser activeConnection={activeConnection} onTaskModule={(output, isError) => { if(terminalRef.current) { terminalRef.current.addOutput(output, isError ? 'error' : 'output'); setActiveView('shell'); } }} />}
+              {activeView === 'factory' && <PayloadFactory onInsertCode={(c) => { if(terminalRef.current) { terminalRef.current.insertCommand(c); setActiveView('shell'); } }} />}
+              {activeView === 'loot' && <EvidenceVault />}
+              {activeView === 'egress' && <TorEgressMonitor />}
+              {activeView === 'spectrum' && <SpectrumStudio />}
+              {activeView === 'autonomous' && <AutonomousOrchestrator connections={c2.connections} />}
+              {activeView === 'sigint' && <OpSecMonitor connections={c2.connections} />}
+              {activeView === 'satellite' && <SatelliteOrchestrator satellites={orbitalAssets} />}
+              {activeView === 'team' && <OperatorSettings operators={c2.operators} config={c2.securityConfig} onUpdateConfig={(updates) => c2.setSecurityConfig(prev => ({ ...prev, ...updates }))} onRemoveOperator={() => {}} />}
+              
+              {activeView === 'mission' && <MissionPlanner satellites={orbitalAssets} onCreateMission={(m) => console.log('Mission created:', m)} onSelectMission={(m) => setSelectedMission(m)} />}
+              {activeView === 'timeline' && <TimelineView satellites={orbitalAssets} onPassSelect={(pass, sat) => { setSelectedSatellite(sat); setActiveView('mission'); }} />}
+              {activeView === 'ccsds' && <CCSDSPacketBuilder onTransmit={(hex) => { setTransmissionRequest({ frequency: 437.8, power: 10, modulation: 'QPSK', payload: hex, targetSatellite: selectedSatellite.designation, duration: 5, authorization: { hasPermission: false, scope: [] } }); setShowSafetyGate(true); }} onCopy={(hex) => navigator.clipboard.writeText(hex)} />}
+              {activeView === 'vulnscan' && <VulnerabilityScanner satellite={selectedSatellite} onExploitSelect={(v) => console.log('Exploit selected:', v)} />}
+              {activeView === 'playbook' && <AttackChainPlaybook onExecutePlaybook={(p) => console.log('Executing playbook:', p)} onExecuteStep={(s) => console.log('Executing step:', s)} />}
+              {activeView === 'report' && <ReportGenerator mission={selectedMission} onGenerate={(r) => console.log('Report generated:', r)} />}
+              {activeView === 'doppler' && <DopplerCorrection satellite={selectedSatellite} baseFrequency={437.8} onCorrectedFrequency={(f) => console.log('Corrected frequency:', f)} />}
+              {activeView === 'tools' && <IntegratedToolLauncher onLaunchTool={(t, p) => console.log('Launching tool:', t, p)} />}
+              
+              {activeView === 'exploit' && <SatelliteExploitOrchestrator />}
+              {activeView === 'firmware' && <FirmwareStudio />}
+              {activeView === 'crypto' && <CryptanalysisLab />}
+              {activeView === 'linkbudget' && <LinkBudgetCalculator />}
+            </ErrorBoundary>
           </div>
         </main>
       </div>
 
       <LabAssistant onInsertCode={(c) => { if(terminalRef.current) { terminalRef.current.insertCommand(c); setActiveView('shell'); } }} />
+      
+      {showSafetyGate && transmissionRequest && (
+        <SafetyGate 
+          transmissionRequest={transmissionRequest}
+          onApprove={() => {
+            console.log('Transmission approved:', transmissionRequest);
+            setShowSafetyGate(false);
+          }}
+          onDeny={() => {
+            setShowSafetyGate(false);
+            setTransmissionRequest(null);
+          }}
+        />
+      )}
+      
+      {(activeView === 'mission' || activeView === 'timeline' || activeView === 'ccsds' || activeView === 'vulnscan' || activeView === 'playbook' || activeView === 'doppler' || activeView === 'tools' || activeView === 'exploit' || activeView === 'firmware' || activeView === 'crypto' || activeView === 'linkbudget') && (
+        <QuickActionsToolbar
+          onStartTracking={() => console.log('Start tracking')}
+          onMonitorSignal={() => console.log('Monitor signal')}
+          onInjectPacket={() => setShowSafetyGate(true)}
+          onRecordIQ={() => setRecording(!recording)}
+          onEmergencyStop={() => { setRecording(false); console.log('Emergency stop!'); }}
+          onShowSettings={() => setActiveView('team')}
+          inPass={inPass}
+          recording={recording}
+        />
+      )}
     </div>
   );
 };
