@@ -2,21 +2,57 @@
 import React, { useEffect, useState } from 'react';
 import { Activity, ShieldAlert, Zap, Cpu, Bell, Signal, AlertTriangle } from 'lucide-react';
 import { WinRMConnection } from '../types';
+import { opsecService } from '../services/opsecService';
+import { demoModeService } from '../services/demoModeService';
 
 interface OpSecMonitorProps {
   connections: WinRMConnection[];
 }
 
+interface OpSecLog {
+  id: string;
+  action: string;
+  user: string;
+  timestamp: string;
+  details: Record<string, any>;
+  risk_level: 'low' | 'medium' | 'high' | 'critical';
+}
+
 const OpSecMonitor: React.FC<OpSecMonitorProps> = ({ connections }) => {
   const [totalEntropy, setTotalEntropy] = useState(14);
-  const [alerts, setAlerts] = useState<string[]>([]);
+  const [alerts, setAlerts] = useState<OpSecLog[]>([]);
+  const [isDemo, setIsDemo] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = demoModeService.subscribe(setIsDemo);
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     const avg = connections.reduce((acc, c) => acc + c.entropy, 0) / (connections.length || 1);
     setTotalEntropy(avg);
-    
-    if (avg > 50) setAlerts(prev => [...prev.slice(-4), "Warning: High Spectral Entropy Detected"]);
   }, [connections]);
+
+  useEffect(() => {
+    loadOpSecLogs();
+    const interval = setInterval(loadOpSecLogs, 10000);
+    return () => clearInterval(interval);
+  }, [isDemo]);
+
+  const loadOpSecLogs = async () => {
+    setLoading(true);
+    if (isDemo) {
+      setAlerts([
+        { id: '1', action: 'High Spectral Entropy Detected', user: 'system', timestamp: new Date().toISOString(), details: { entropy: 75 }, risk_level: 'high' },
+        { id: '2', action: 'Mesh signal synchronization successful', user: 'system', timestamp: new Date(Date.now() - 30000).toISOString(), details: { host: 'DC01.HTB.LOCAL' }, risk_level: 'low' }
+      ]);
+    } else {
+      const logs = await opsecService.getLogs(50);
+      setAlerts(logs);
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="h-full flex flex-col gap-6 animate-in fade-in duration-500">
@@ -64,22 +100,35 @@ const OpSecMonitor: React.FC<OpSecMonitorProps> = ({ connections }) => {
         </h3>
         
         <div className="flex-1 overflow-y-auto space-y-4 pr-4 scrollbar-hide font-mono text-[10px]">
-           {alerts.length === 0 && (
+           {loading ? (
+             <div className="h-full flex items-center justify-center">
+                <Activity size={24} className="text-emerald-500 animate-spin" />
+             </div>
+           ) : alerts.length === 0 ? (
              <div className="h-full flex flex-col items-center justify-center opacity-10">
                 <AlertTriangle size={64} />
                 <p className="mt-4 font-black uppercase tracking-widest">No Priority Alerts</p>
              </div>
+           ) : (
+             alerts.map((alert) => {
+               const getRiskColor = () => {
+                 switch(alert.risk_level) {
+                   case 'critical': return 'red';
+                   case 'high': return 'orange';
+                   case 'medium': return 'yellow';
+                   default: return 'blue';
+                 }
+               };
+               const color = getRiskColor();
+               
+               return (
+                 <div key={alert.id} className={`flex gap-4 p-4 bg-${color}-500/5 border border-${color}-500/10 rounded-2xl animate-in slide-in-from-left-4`}>
+                    <span className={`text-${color}-500 shrink-0 mt-0.5`}>[{new Date(alert.timestamp).toLocaleTimeString()}]</span>
+                    <span className="text-slate-300 uppercase font-bold tracking-tight">{alert.action}</span>
+                 </div>
+               );
+             })
            )}
-           {alerts.map((alert, i) => (
-             <div key={i} className="flex gap-4 p-4 bg-red-500/5 border border-red-500/10 rounded-2xl animate-in slide-in-from-left-4">
-                <span className="text-red-500 shrink-0 mt-0.5">[{new Date().toLocaleTimeString()}]</span>
-                <span className="text-slate-300 uppercase font-bold tracking-tight">{alert}</span>
-             </div>
-           ))}
-           <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl flex gap-4">
-              <span className="text-blue-500">[{new Date().toLocaleTimeString()}]</span>
-              <span className="text-slate-500 uppercase">Mesh signal synchronization successful across DC01.HTB.LOCAL</span>
-           </div>
         </div>
       </div>
     </div>

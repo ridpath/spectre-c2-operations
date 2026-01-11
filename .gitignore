@@ -85,3 +85,34 @@ htmlcov/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Python virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Database files
+*.db
+spectre_c2.db
+
+# Build artifacts
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Windows
+$RECYCLE.BIN/
+ehthumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/

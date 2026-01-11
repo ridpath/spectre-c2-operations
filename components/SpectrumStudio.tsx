@@ -84,7 +84,7 @@ const SpectrumStudio: React.FC = () => {
     'Slack': { icon: <MessageSquare size={32} />, color: 'purple', desc: 'Mimics persistent RTM socket connections.', risk: 'Low', protocol: 'WSS (WebSockets)' },
     'GoogleWorkspace': { icon: <Globe size={32} />, color: 'red', desc: 'Mimics gRPC-based Drive synchronization.', risk: 'Low', protocol: 'HTTP/3 (QUIC)' },
     'Zoom': { icon: <Video size={32} />, color: 'blue', desc: 'Masks C2 within WebRTC / UDP media streams.', risk: 'Ultra-Low', protocol: 'UDP/SRTP' },
-    'PhantomVector': { icon: <Radio size={32} />, color: 'red', desc: 'Industrialized vector-based protocol mimicry.', risk: 'Elite', protocol: 'VECTORIZED/RAW' }
+    'PhantomVector': { icon: <Radio size={32} />, color: 'red', desc: 'Advanced vector-based protocol mimicry.', risk: 'High', protocol: 'VECTORIZED/RAW' }
   };
 
   return (
@@ -94,7 +94,7 @@ const SpectrumStudio: React.FC = () => {
           <h2 className="text-2xl font-black text-blue-400 uppercase tracking-tighter flex items-center gap-3">
             <Wifi size={24} /> Spectrum Studio v4.6
           </h2>
-          <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1">Industrial-Grade RF Orchestration & Mimicry</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black mt-1">Professional RF Orchestration & Mimicry</p>
         </div>
         
         <div className="flex items-center gap-4 bg-slate-900/60 p-2 rounded-2xl border border-white/5 shadow-2xl">

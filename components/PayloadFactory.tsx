@@ -93,7 +93,7 @@ const PayloadFactory: React.FC<PayloadFactoryProps> = ({ onInsertCode }) => {
         <h2 className="text-2xl font-black text-emerald-400 uppercase tracking-tighter flex items-center gap-3">
           <Skull size={24} /> Artifact Foundry & Synthesis
         </h2>
-        <p className="text-[10px] text-slate-500 uppercase tracking-[0.25em] font-black mt-1">Sovereign-Grade Stealth Engineering Laboratory</p>
+        <p className="text-[10px] text-slate-500 uppercase tracking-[0.25em] font-black mt-1">Professional Stealth Engineering Laboratory</p>
       </header>
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden">

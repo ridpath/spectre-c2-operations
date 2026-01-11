@@ -25,7 +25,7 @@ const Armory: React.FC<ArmoryProps> = ({ onInsertCode }) => {
           <h2 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
             <Shield size={24} className="text-blue-500" /> Tactical Armory
           </h2>
-          <p className="text-[10px] text-slate-500 uppercase tracking-[0.3em] font-bold mt-1">Industrial-Grade Offensive Tooling</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-[0.3em] font-bold mt-1">Professional Offensive Tooling</p>
         </div>
         <div className="flex bg-slate-900/50 p-1 rounded-xl border border-white/5">
           {categories.map(cat => (

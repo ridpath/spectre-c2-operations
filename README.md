@@ -1,9 +1,9 @@
 # Spectre C2 Operations Center
 
-**Operational Designation:** Sovereign-Grade Engagement and Orbital SIGINT Framework  
-**Version:** 5.0.0-TACTICAL-ELITE  
-**Research Tier:** World-Class Satellite Exploitation & Aerospace Security Testing  
-**Lead Architect:** Principal Security Research Division  
+**Operational Designation:** Professional Engagement and Orbital SIGINT Framework  
+**Version:** 5.0.0  
+**Research Tier:** Professional Satellite Exploitation & Aerospace Security Testing  
+**Lead Architect:** Security Research Division  
 
 ![Status: Enhanced](https://img.shields.io/badge/status-enhanced-brightgreen)
 ![Domain: Astro-Sec](https://img.shields.io/badge/domain-astro--sec-blue)
@@ -14,7 +14,7 @@
 
 ---
 
-Spectre C2 is a world-class orbital-grade penetration testing platform engineered for comprehensive satellite security assessment, advanced WinRM operations, and sophisticated RF exploitation. Version 5.0.0-TACTICAL-ELITE introduces professional-grade satellite exploit orchestration, firmware analysis, cryptanalysis capabilities, and precision RF signal planning tools.
+Spectre C2 is a professional orbital penetration testing platform engineered for comprehensive satellite security assessment, advanced WinRM operations, and sophisticated RF exploitation. Version 5.0.0 introduces satellite exploit orchestration, firmware analysis, cryptanalysis capabilities, and precision RF signal planning tools.
 
 ---
 
@@ -89,14 +89,68 @@ The Spectre Tactical Bridge (STB) is the mandatory backend translation layer. It
 
 ---
 
+## Windows Installation
+
+**Quick Start (Windows 10/11)**:
+
+1. **Prerequisites**:
+   - Install [Node.js](https://nodejs.org/) (v18+)
+   - Install [Python 3.10+](https://www.python.org/downloads/)
+   - Install [PostgreSQL](https://www.postgresql.org/download/windows/) or use SQLite (default)
+
+2. **Automated Installation**:
+   ```powershell
+   # Run as Administrator
+   .\install.ps1
+   ```
+
+3. **Manual Installation**:
+   ```powershell
+   # Backend setup
+   cd backend
+   python -m venv venv
+   .\venv\Scripts\Activate.ps1
+   pip install -r requirements.txt
+   python init_db_sqlite.py
+   cd ..
+
+   # Frontend setup
+   npm install
+   ```
+
+4. **Start Services**:
+   ```powershell
+   # Option 1: Automated launcher
+   .\start.bat
+
+   # Option 2: Manual start
+   # Terminal 1: Backend
+   cd backend
+   .\venv\Scripts\Activate.ps1
+   python backend.py
+
+   # Terminal 2: Frontend
+   npm run dev
+   ```
+
+5. **Access**:
+   - Frontend: `http://localhost:3001`
+   - Backend API: `http://localhost:8000`
+   - API Docs: `http://localhost:8000/docs`
+   - Default Login: `admin` / `admin123`
+
+**Note**: SDR hardware features require additional Windows drivers or WSL. See `install.ps1` for WSL installation.
+
+---
+
 ## Hardware and SDR Configuration
 
 The platform supports multiple RF operational modes via the `SDR_TYPE` environment variable:
 - **sim:** Synthetic signal generation based on real-world orbital distance (FSPL calculations).
-- **rtl:** Real-time receive-only via RTL-SDR.
-- **hackrf:** Half-duplex transceiver operations for packet injection and OOK modulation.
-- **usrp:** High-performance RX/TX via UHD (Optimized for USRP X410).
-- **gnuradio_usrp:** Advanced DSP via multi-threaded GNU Radio flowgraphs.
+- **rtl:** Real-time receive-only via RTL-SDR (requires Windows drivers).
+- **hackrf:** Half-duplex transceiver operations for packet injection and OOK modulation (requires Windows drivers).
+- **usrp:** High-performance RX/TX via UHD (Optimized for USRP X410, requires Windows UHD build).
+- **gnuradio_usrp:** Advanced DSP via multi-threaded GNU Radio flowgraphs (requires WSL or Windows GNU Radio build).
 
 ---
 

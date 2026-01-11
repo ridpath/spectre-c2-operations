@@ -1,7 +1,7 @@
 {
   "name": "spectre-c2-operations-center",
   "private": true,
-  "version": "5.0.0-TACTICAL-ELITE",
+  "version": "5.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
