@@ -118,3 +118,7 @@ class StepExecutionRequest(BaseModel):
     step_id: UUID4
     playbook_id: UUID4
     mission_id: Optional[UUID4] = None
+
+
+class SatelliteFetchRequest(BaseModel):
+    sources: Optional[List[str]] = None

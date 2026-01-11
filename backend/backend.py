@@ -31,7 +31,7 @@ from schemas import (
     UserLogin, UserRegister, UserResponse, TokenResponse, RefreshTokenRequest,
     MissionCreateRequest, MissionUpdateRequest, EvidenceCreateRequest,
     VulnerabilityScanRequest, ReportGenerateRequest, PassPredictionRequest,
-    SafetyCheckRequest, TemplateCreateRequest
+    SafetyCheckRequest, TemplateCreateRequest, SatelliteFetchRequest
 )
 from file_storage import file_storage
 from sdr_hardware import sdr_manager, SpectrumAnalyzer, RTLSDRDevice
@@ -1076,7 +1076,7 @@ async def list_satellites(
 
 @app.post("/api/v1/satellites/fetch-all")
 async def fetch_satellites_from_sources(
-    sources: Optional[List[str]] = Body(None),
+    request: SatelliteFetchRequest,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
@@ -1084,6 +1084,7 @@ async def fetch_satellites_from_sources(
     try:
         from satellite_tle_fetcher import tle_fetcher
         
+        sources = request.sources
         if sources is None or 'celestrak' in sources:
             print("[INFO] Fetching satellites from CelesTrak...")
             satellites = await tle_fetcher.fetch_all_groups()
