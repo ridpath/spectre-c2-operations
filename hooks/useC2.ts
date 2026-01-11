@@ -8,25 +8,7 @@ export const useC2 = () => {
   const [tasks, setTasks] = useState<C2Task[]>([]);
   const [listeners, setListeners] = useState<C2Listener[]>([]);
   const [operators, setOperators] = useState<Operator[]>([]);
-  const [currentOperator, setCurrentOperator] = useState<Operator | null>(() => {
-    try {
-      const token = localStorage.getItem('spectre_access_token');
-      const userStr = localStorage.getItem('spectre_user');
-      if (token && userStr) {
-        const user = JSON.parse(userStr);
-        return {
-          id: user.id,
-          alias: user.username,
-          role: user.role.toUpperCase() as 'ADMIN' | 'OPERATOR',
-          status: 'active',
-          lastSeen: new Date()
-        };
-      }
-    } catch (error) {
-      console.log('No stored auth found');
-    }
-    return null;
-  });
+  const [currentOperator, setCurrentOperator] = useState<Operator | null>(null);
   
   const [securityConfig, setSecurityConfig] = useState<SecurityConfig>({
     isAuthEnabled: true,
@@ -36,6 +18,44 @@ export const useC2 = () => {
   });
 
   useEffect(() => {
+    const validateStoredToken = async () => {
+      try {
+        const token = localStorage.getItem('spectre_access_token');
+        const userStr = localStorage.getItem('spectre_user');
+        
+        if (token && userStr) {
+          const response = await fetch('http://localhost:8000/api/v1/auth/me', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (response.ok) {
+            const user = JSON.parse(userStr);
+            setCurrentOperator({
+              id: user.id,
+              alias: user.username,
+              role: user.role.toUpperCase() as 'ADMIN' | 'OPERATOR',
+              status: 'active',
+              lastSeen: new Date()
+            });
+          } else {
+            console.log('Stored token invalid, clearing auth');
+            localStorage.removeItem('spectre_access_token');
+            localStorage.removeItem('spectre_refresh_token');
+            localStorage.removeItem('spectre_user');
+          }
+        }
+      } catch (error) {
+        console.log('Token validation failed, clearing auth');
+        localStorage.removeItem('spectre_access_token');
+        localStorage.removeItem('spectre_refresh_token');
+        localStorage.removeItem('spectre_user');
+      }
+    };
+    
+    validateStoredToken();
+    
     setListeners([
       { id: 'l1', name: 'HTTP_Beacon_80', type: 'http', lhost: '10.10.14.12', lport: 80, active: true, profiles: ['ghost-stealth'] },
       { id: 'l2', name: 'Azure_Spectral_Mimic', type: 'spectrum', lhost: '52.12.11.90', lport: 443, active: true, profiles: ['office365-mimic'] }
@@ -44,7 +64,7 @@ export const useC2 = () => {
     setOperators([
       { id: 'op1', alias: 'Spectre-Lead', role: 'ADMIN', status: 'active', lastSeen: new Date() }
     ]);
-  }, [currentOperator]);
+  }, []);
 
   const login = useCallback((user: any) => {
     const op: Operator = {
